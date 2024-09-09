@@ -16,7 +16,8 @@
         "test:e2e": "playwright test",
         "prepare": "cd .. && husky ./client/.husky",
         "storybook": "storybook dev -p 6006",
-        "build-storybook": "storybook build"
+        "build-storybook": "storybook build",
+        "test-storybook": "test-storybook"
     },
     "dependencies": {
         "next": "14.2.8",
