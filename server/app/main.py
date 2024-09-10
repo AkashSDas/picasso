@@ -7,7 +7,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
-from app.core.config import settings
+
+from app.core import settings
 from app.api import test_router
 
 app = FastAPI(
@@ -44,7 +45,9 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # HTTPS Redirect Middleware: Automatically redirects HTTP requests to HTTPS (for production use)
-app.add_middleware(HTTPSRedirectMiddleware)
+if settings.environment == "production":
+
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 
 # Custom Middleware for adding security headers (Optional, useful for additional security)

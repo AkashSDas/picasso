@@ -91,10 +91,13 @@ class Settings(DatabaseSettings, LoggerSettings):
     cors_origins: Json[list[AnyHttpUrl]] = "[]"  # type: ignore[assignment]
 
     # Trusted hosts, expected to be a JSON-formatted list of URLs
-    trusted_hosts: Json[list[AnyHttpUrl]] = '["http://localhost:3000"]'  # type: ignore[assignment]
+    trusted_hosts: Json[list[str]] = '["localhost", "127.0.0.1"]'  # type: ignore[assignment]
 
     # Debug mode, set this to True for development environments
     debug: bool = False
+
+    # Environment in which this application is running
+    environment: Literal["development", "production", "testing"] = "development"
 
     @model_validator(mode="after")
     def configure_debug(self) -> Self:
