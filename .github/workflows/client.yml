@@ -48,8 +48,8 @@ jobs:
                   cache: "pnpm"
                   cache-dependency-path: "client/pnpm-lock.yaml"
             - run: pnpm install
-            - run: pnpm test --watchAll=false
-            - run: pnpm test:cov --watchAll=false
+            - run: pnpm test
+            - run: pnpm test:cov
             - uses: actions/upload-artifact@v4
               with:
                   name: coverage-report
