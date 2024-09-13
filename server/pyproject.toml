@@ -52,6 +52,8 @@ max-args = 8 # Max num of arguments allowed in a function/method definition
 # Ignore Pyflakes "imported but unused" errors in the following files:
 "app/api/__init__.py" = ["F401"]
 "app/core/__init__.py" = ["F401"]
+"app/deps/__init__.py" = ["F401"]
+"app/db/models/__init__.py" = ["F401"]
 
 [tool.mypy]
 disallow_untyped_defs = true
