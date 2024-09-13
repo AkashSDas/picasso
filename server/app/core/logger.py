@@ -1,6 +1,6 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import sys
+from logging.handlers import RotatingFileHandler
 
 from asgi_correlation_id import CorrelationIdFilter
 
@@ -12,8 +12,8 @@ def create_app_logger() -> logging.Logger:
     Creates and configures an enhanced logger for the application.
 
     Returns:
-        logging.Logger: A configured logger instance with console and file handlers,
-        rotation, and correlation ID support.
+        logging.Logger: A configured logger instance with console and file
+        handlers, rotation, and correlation ID support.
 
     Example:
     ```python
@@ -28,7 +28,9 @@ def create_app_logger() -> logging.Logger:
 
     app_logger = logging.getLogger(settings.logger_name)
     app_logger.setLevel(settings.logger_level)
-    app_logger.propagate = False  # Prevent logs from propagating to the root logger
+
+    # Prevent logs from propagating to the root logger
+    app_logger.propagate = False
 
     formatter = logging.Formatter(
         fmt=settings.logger_format,
@@ -40,7 +42,9 @@ def create_app_logger() -> logging.Logger:
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     console_handler.setLevel(settings.logger_level)
-    console_handler.addFilter(CorrelationIdFilter(uuid_length=32, default_value="-"))
+    console_handler.addFilter(
+        CorrelationIdFilter(uuid_length=32, default_value="-"),
+    )
 
     # Rotating file handler for logging to a file with log rotation
 
@@ -50,8 +54,13 @@ def create_app_logger() -> logging.Logger:
         backupCount=3,  # Keep 3 backup files
     )
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)  # Use INFO level or higher for file logs
-    file_handler.addFilter(CorrelationIdFilter(uuid_length=32, default_value="-"))
+
+    # Use INFO level or higher for file logs
+    file_handler.setLevel(logging.INFO)
+
+    file_handler.addFilter(
+        CorrelationIdFilter(uuid_length=32, default_value="-"),
+    )
 
     # Add a separate file handler for ERROR level logs
 
@@ -61,8 +70,13 @@ def create_app_logger() -> logging.Logger:
         backupCount=3,  # Keep 3 backup files
     )
     error_file_handler.setFormatter(formatter)
-    error_file_handler.setLevel(logging.ERROR)  # Use INFO level or higher for file logs
-    error_file_handler.addFilter(CorrelationIdFilter(uuid_length=32, default_value="-"))
+
+    # Use INFO level or higher for file logs
+    error_file_handler.setLevel(logging.ERROR)
+
+    error_file_handler.addFilter(
+        CorrelationIdFilter(uuid_length=32, default_value="-"),
+    )
 
     # Attach handlers to the logger
 
@@ -70,8 +84,8 @@ def create_app_logger() -> logging.Logger:
     app_logger.addHandler(file_handler)
     app_logger.addHandler(error_file_handler)
 
-    # Intercept Uvicorn's log and use the same handlers (but not altering the actual
-    # Uvicorn log configuration)
+    # Intercept Uvicorn's log and use the same handlers (but not altering the
+    # actual Uvicorn log configuration)
 
     uvicorn_logger = logging.getLogger("uvicorn")
     uvicorn_logger.handlers = app_logger.handlers  # Redirect Uvicorn logs

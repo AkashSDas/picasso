@@ -1,15 +1,15 @@
 import time
+
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import RedirectResponse
 
-
-from app.core import settings
 from app.api import example_router
+from app.core import settings
 
 app = FastAPI(
     title=settings.app_title,
@@ -21,35 +21,40 @@ app = FastAPI(
 # Middlewares
 # =========================
 
-# Correlation ID Middleware: Adds unique request ID (X-Request-ID) to each request for tracking
+# Correlation ID Middleware: Adds unique request ID (X-Request-ID) to each
+# request for tracking
 app.add_middleware(CorrelationIdMiddleware, header_name="X-Request-ID")
 
-# CORS Middleware: Allows cross-origin requests, useful for API integrations and frontend apps
+# CORS Middleware: Allows cross-origin requests, useful for API integrations and
+# frontend apps
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.cors_origins],
     allow_credentials=True,  # Allow credentials (cookies, etc.)
     allow_methods=["*"],
     allow_headers=["X-Request-ID"],  # Allowed request headers
-    expose_headers=["X-Request-ID", "X-Process-Time"],  # Expose the headers you need
+    # Expose the headers you need
+    expose_headers=["X-Request-ID", "X-Process-Time"],
 )
 
-# GZip Middleware: Compresses response data for faster transmission and smaller payloads
-# Compress responses larger than 500 bytes
+# GZip Middleware: Compresses response data for faster transmission and smaller
+# payloads. Compress responses larger than 500 bytes
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 if settings.environment == "production":
     # HTTPS Redirect Middleware: Automatically redirects HTTP requests to HTTPS
     app.add_middleware(HTTPSRedirectMiddleware)
 
-    # Trusted Host Middleware: Prevents Host Header attacks by validating allowed hosts
+    # Trusted Host Middleware: Prevents Host Header attacks by validating
+    # allowed hosts
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=[str(host) for host in settings.trusted_hosts],
     )
 
 
-# Custom Middleware for adding security headers (Optional, useful for additional security)
+# Custom Middleware for adding security headers (Optional, useful for
+# additional security)
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)

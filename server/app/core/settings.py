@@ -1,8 +1,16 @@
 from typing import Literal, Self
 from urllib.parse import quote_plus
 
-from pydantic import AnyHttpUrl, Json, ValidationInfo, field_validator, model_validator
+from pydantic import (
+    AnyHttpUrl,
+    Json,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+LoggerLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class DatabaseSettings(BaseSettings):
@@ -21,7 +29,12 @@ class DatabaseSettings(BaseSettings):
     db_sqlalchemy_url: str | None = None
 
     @field_validator("db_sqlalchemy_url", mode="before")
-    def create_sqlalchemy_url(cls, v: str | None, field_info: ValidationInfo) -> str:
+    @classmethod
+    def create_sqlalchemy_url(
+        cls,
+        v: str | None,
+        field_info: ValidationInfo,
+    ) -> str:
         """
         Automatically generate the SQLAlchemy database URL if not provided.
         If the URL is already set, return it unchanged.
@@ -41,7 +54,9 @@ class DatabaseSettings(BaseSettings):
         parsed_pwd = quote_plus(str(password))
 
         # Return the constructed asyncpg connection URL
-        return f"postgresql+asyncpg://{username}:{parsed_pwd}@{host}:{port}/{name}"
+        return (
+            f"postgresql+asyncpg://{username}:{parsed_pwd}@{host}:{port}/{name}"
+        )
 
 
 class LoggerSettings(BaseSettings):
@@ -54,9 +69,10 @@ class LoggerSettings(BaseSettings):
     logger_name: str = "Picasso"
 
     # Log level, defaults to INFO but can be changed to control verbosity
-    logger_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    logger_level: LoggerLevel = "INFO"
 
-    # Log message format, which includes time, level, process/thread info, and more
+    # Log message format, which includes time, level, process/thread info,
+    # and more
     logger_format: str = (
         "[%(asctime)s] [%(levelname)s] [%(name)s] "
         "[PID %(process)d] [TID %(thread)d] [X-ID %(correlation_id)s] "
@@ -72,8 +88,9 @@ class LoggerSettings(BaseSettings):
 
 class Settings(DatabaseSettings, LoggerSettings):
     """
-    This is the main settings class that aggregates database, logger, and other settings,
-    and includes application-specific settings like title, version, CORS origins, and debug mode.
+    This is the main settings class that aggregates database, logger, and other
+    settings, and includes application-specific settings like title, version,
+    CORS origins, and debug mode.
     """
 
     # Configuration for Pydantic settings
@@ -110,5 +127,6 @@ class Settings(DatabaseSettings, LoggerSettings):
         return self
 
 
-# Instantiate the settings object, loading from environment variables and defaults.
+# Instantiate the settings object, loading from environment variables
+# and defaults.
 settings = Settings()  # type: ignore[call-arg]
