@@ -1,13 +1,16 @@
 from datetime import datetime
+from uuid import uuid4
 
-from sqlalchemy import DateTime, String, func, text
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import BaseDbModel
+from app.db.base import BaseDbModel, make_column_unupdateable
 
 
 class User(BaseDbModel):
+    __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
@@ -18,9 +21,9 @@ class User(BaseDbModel):
     # function or sequence
     public_user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
-        # Assuming PostgreSQL with uuid-ossp extension
-        server_default=text("uuid_generate_v4()"),
+        default=uuid4(),
         unique=True,
+        index=True,
     )
 
     is_active: Mapped[bool] = mapped_column(default=False)
@@ -49,3 +52,7 @@ class User(BaseDbModel):
         super().__init__(**kwargs)
         if "public_user_id" in kwargs:
             raise ValueError("public_user_id cannot be set manually")
+
+
+make_column_unupdateable(User.public_user_id)
+make_column_unupdateable(User.created_at)
