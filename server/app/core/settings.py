@@ -78,14 +78,14 @@ class Settings(DatabaseSettings, LoggerSettings):
 
     # Configuration for Pydantic settings
     model_config = SettingsConfigDict(
-        case_sensitive=False,  # Settings are case-insensitive by default
-        env_file=".env",  # Load settings from the .env file
+        case_sensitive=False,
+        env_file=".env",
         extra="ignore",  # Ignore unknown environment variables
     )
 
     # Application-specific settings
-    app_title: str = "Picasso"  # Title of the application
-    app_version: str = "0.1.0"  # Version of the application
+    app_title: str = "Picasso"
+    app_version: str = "0.1.0"
 
     # CORS origins, expected to be a JSON-formatted list of URLs
     cors_origins: Json[list[AnyHttpUrl]] = "[]"  # type: ignore[assignment]

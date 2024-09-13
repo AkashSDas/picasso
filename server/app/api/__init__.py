@@ -1,1 +1,1 @@
-from .test import router as test_router
+from .example import router as example_router

@@ -4,7 +4,7 @@ import sys
 
 from asgi_correlation_id import CorrelationIdFilter
 
-from app.core.config import settings
+from app.core import settings
 
 
 def create_app_logger() -> logging.Logger:

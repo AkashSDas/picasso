@@ -9,12 +9,12 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 
 from app.core import settings
-from app.api import test_router
+from app.api import example_router
 
 app = FastAPI(
     title=settings.app_title,
     version=settings.app_version,
-    docs_url="/api/docs",  # Custom docs URL
+    docs_url="/api/docs",
 )
 
 # =========================
@@ -27,27 +27,26 @@ app.add_middleware(CorrelationIdMiddleware, header_name="X-Request-ID")
 # CORS Middleware: Allows cross-origin requests, useful for API integrations and frontend apps
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[str(origin) for origin in settings.cors_origins],  # Allowed origins
+    allow_origins=[str(origin) for origin in settings.cors_origins],
     allow_credentials=True,  # Allow credentials (cookies, etc.)
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, etc.)
+    allow_methods=["*"],
     allow_headers=["X-Request-ID"],  # Allowed request headers
-    expose_headers=["X-Request-ID"],  # Expose X-Request-ID for tracking purposes
-)
-
-# Trusted Host Middleware: Prevents Host Header attacks by validating allowed hosts
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=[str(host) for host in settings.trusted_hosts],
+    expose_headers=["X-Request-ID", "X-Process-Time"],  # Expose the headers you need
 )
 
 # GZip Middleware: Compresses response data for faster transmission and smaller payloads
 # Compress responses larger than 500 bytes
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-# HTTPS Redirect Middleware: Automatically redirects HTTP requests to HTTPS (for production use)
 if settings.environment == "production":
-
+    # HTTPS Redirect Middleware: Automatically redirects HTTP requests to HTTPS
     app.add_middleware(HTTPSRedirectMiddleware)
+
+    # Trusted Host Middleware: Prevents Host Header attacks by validating allowed hosts
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=[str(host) for host in settings.trusted_hosts],
+    )
 
 
 # Custom Middleware for adding security headers (Optional, useful for additional security)
@@ -80,7 +79,7 @@ async def add_process_time_header(req: Request, call_next) -> Response:
 # Routers
 # =========================
 
-app.include_router(test_router, prefix="/api/test", tags=["test"])
+app.include_router(example_router, prefix="/api/example", tags=["Example"])
 
 
 @app.get("/", include_in_schema=False)
