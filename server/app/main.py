@@ -1,21 +1,27 @@
 import time
 
 from asgi_correlation_id import CorrelationIdMiddleware
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
-from app.api import example_router
+from app import schemas
+from app.api import auth_router, example_router
 from app.core import settings
+from app.core.exceptions import BadRequestError
 
 app = FastAPI(
     title=settings.app_title,
     version=settings.app_version,
     docs_url="/api/docs",
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # =========================
 # Middlewares
@@ -81,10 +87,34 @@ async def add_process_time_header(req: Request, call_next) -> Response:
 
 
 # =========================
+# Error Handlers
+# =========================
+
+
+@app.exception_handler(BadRequestError)
+async def bad_request_err_handler(_: Request, e: BadRequestError) -> JSONResponse:
+    content = {"detail": e.detail}
+    if e.context:
+        content = {**content, **e.context}
+
+    return JSONResponse(
+        status_code=e.status_code,
+        content=schemas.SignupEmailAlreadyExistOut(**content).model_dump(by_alias=True),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_err_handler(_: Request, e: RequestValidationError) -> JSONResponse:
+    content = {"detail": "Validation error", "errors": e.errors()}
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=content)
+
+
+# =========================
 # Routers
 # =========================
 
 app.include_router(example_router, prefix="/api/example", tags=["Example"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 
 
 @app.get("/", include_in_schema=False)
