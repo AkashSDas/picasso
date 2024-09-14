@@ -1,8 +1,8 @@
-import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Literal, TypedDict
 
+from cryptography.fernet import Fernet
 from jose import JWTError, jwt
 
 from app.core import settings
@@ -15,6 +15,8 @@ class AccessTokenPayload(TypedDict):
 
 
 class AuthUtils:
+    cipher_suite = Fernet(settings.auth_magic_token_hash_key)
+
     @classmethod
     def create_access_token(cls, data: AccessTokenPayload) -> str:
         to_encode = data.copy()
@@ -42,7 +44,7 @@ class AuthUtils:
         )
 
     @classmethod
-    def verfiy_token(cls, token: str) -> AuthToken | None:
+    def verfiy_jwt_token(cls, token: str) -> AuthToken | None:
         try:
             payload = jwt.decode(
                 token,
@@ -64,7 +66,13 @@ class AuthUtils:
 
     @classmethod
     def hash_token(cls, token: str) -> str:
-        return hashlib.sha256(token.encode("utf-8")).hexdigest()
+        encrypted_token = cls.cipher_suite.encrypt(token.encode("utf-8"))
+        return encrypted_token.decode("utf-8")
+
+    @classmethod
+    def unhash_token(cls, hashed_token: str) -> str:
+        decrypted_token = cls.cipher_suite.decrypt(hashed_token.encode("utf-8"))
+        return decrypted_token.decode("utf-8")
 
     @classmethod
     def create_magic_link_token(cls) -> tuple[str, str]:

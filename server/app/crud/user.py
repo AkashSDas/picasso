@@ -24,6 +24,38 @@ class UserCRUD:
         return result.scalar()
 
     @staticmethod
+    async def get_by_id(db: AsyncSession, id: int) -> User | None:
+        stmt = select(User).where(User.id == id).limit(1)
+        result = await db.execute(stmt)
+        return result.scalar()
+
+    @staticmethod
+    async def get_magic_link_by_hashed_token(
+        db: AsyncSession, token: str
+    ) -> MagicLink | None:
+        unhashed_token = utils.auth.unhash_token(token)
+        fifteen_minutes_ago = datetime.now(UTC) - timedelta(minutes=15)
+
+        result = await db.execute(
+            select(MagicLink)
+            .where(
+                MagicLink.unhashed_token == unhashed_token,
+                MagicLink.expires_at.isnot(None),
+                MagicLink.expires_at >= fifteen_minutes_ago,
+            )
+            .limit(1)
+        )
+
+        magic_link = result.scalar()
+        return magic_link
+
+    @staticmethod
+    async def unset_magic_link(db: AsyncSession, magic_link: MagicLink) -> None:
+        magic_link.unhashed_token = None
+        magic_link.expires_at = None
+        await db.commit()
+
+    @staticmethod
     async def upsert_magic_link(db: AsyncSession, user: User) -> str:
         """Insert or update magic link record which is linked to user."""
 
