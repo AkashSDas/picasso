@@ -21,7 +21,7 @@ class EmailUtils:
         try:
             log.info(f"Sending magic link email to {email}. Token: {token}")
 
-            magic_link = f"{base_url}/api/auth/verify?token={token}"
+            magic_link = f"{base_url}api/auth/verify?token={token}"
             msg = MessageSchema(
                 subject="Your Magic Login Link",
                 recipients=[email],

@@ -17,7 +17,7 @@ class MagicLink(BaseDbModel):
 
     # One-to-one mapping with the User model
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), unique=True, index=True)
-    user: Mapped[User] = relationship(
+    user: Mapped["User"] = relationship(
         back_populates="magic_link_info",
         cascade="delete",
         lazy="noload",
