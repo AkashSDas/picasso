@@ -6,6 +6,7 @@ from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app import schemas
 from app.db.base import BaseDbModel, make_column_unupdateable
 from app.schemas.auth import SignupIn
 
@@ -69,6 +70,9 @@ class User(BaseDbModel):
             email=schema.email,
             profile_pic_url="/static/images/default-profile.jpg",
         )
+
+    def to_schema(self) -> schemas.User:
+        return schemas.User.model_validate(self)
 
 
 make_column_unupdateable(User.public_user_id)

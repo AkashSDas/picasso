@@ -1,6 +1,6 @@
 from typing import Annotated, cast
 
-from fastapi import APIRouter, BackgroundTasks, Body, Request, status
+from fastapi import APIRouter, BackgroundTasks, Body, Request, Response, status
 from pydantic import EmailStr
 
 from app import crud, schemas, utils
@@ -73,3 +73,33 @@ async def init_magic_link_login(
         )
 
         return schemas.LoginOut(detail="Magic link login sent to your email")
+
+
+@router.get("/login/email/{token}", summary="Complete magic email login")
+async def complete_magic_link_login(
+    token: str,
+    db: db_dependency,
+    res: Response,
+    background_tasks: BackgroundTasks,
+) -> schemas.CompleteMagicLinkLoginOut:
+    magic_link = await crud.user.get_magic_link_by_hashed_token(db, token)
+
+    if not magic_link:
+        raise BadRequestError(detail="Magic link is invalid or expired")
+    else:
+        access_token = utils.auth.create_access_token({"sub": magic_link.user_id})
+        refresh_token = utils.auth.create_refresh_token({"sub": magic_link.user_id})
+
+        user = await crud.user.get_by_id(db, magic_link.id)
+        if not user:
+            raise NotFoundError(f"User with user id ({magic_link.id}) is not found")
+        else:
+            res.set_cookie(
+                key="refresh_token", value=refresh_token, httponly=True, secure=True
+            )
+
+            background_tasks.add_task(crud.user.unset_magic_link, db, magic_link)
+
+            return schemas.CompleteMagicLinkLoginOut(
+                accessToken=access_token, user=user.to_schema()
+            )

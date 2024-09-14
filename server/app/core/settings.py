@@ -16,6 +16,8 @@ class AuthSettings(BaseSettings):
     auth_access_token_expire: int = 5
     auth_refresh_token_expire: int = 1
 
+    auth_magic_token_hash_key: bytes
+
 
 class DatabaseSettings(BaseSettings):
     """

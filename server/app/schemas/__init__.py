@@ -1,2 +1,9 @@
-from .auth import LoginIn, LoginOut, SignupEmailAlreadyExistOut, SignupIn, SignupOut
+from .auth import (
+    CompleteMagicLinkLoginOut,
+    LoginIn,
+    LoginOut,
+    SignupEmailAlreadyExistOut,
+    SignupIn,
+    SignupOut,
+)
 from .user import User
