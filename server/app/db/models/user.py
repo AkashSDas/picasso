@@ -72,7 +72,13 @@ class User(BaseDbModel):
         )
 
     def to_schema(self) -> schemas.User:
-        return schemas.User.model_validate(self)
+        return schemas.User.model_validate(
+            {
+                "user_id": self.public_user_id,
+                "profile_pic_url": self.profile_pic_url,
+                "email": self.email,
+            }
+        )
 
 
 make_column_unupdateable(User.public_user_id)

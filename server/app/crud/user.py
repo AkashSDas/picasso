@@ -51,8 +51,12 @@ class UserCRUD:
 
     @staticmethod
     async def unset_magic_link(db: AsyncSession, magic_link: MagicLink) -> None:
+        log.info(f"Unset magic link login for user id ({magic_link.user_id})")
+
         magic_link.unhashed_token = None
         magic_link.expires_at = None
+
+        db.add(magic_link)
         await db.commit()
 
     @staticmethod

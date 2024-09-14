@@ -30,7 +30,7 @@ async def signup_via_email(
     exists = await crud.user.check_email_exist(db, body.email)
 
     if exists:
-        raise BadRequestError("Email already used", context={"user_email": body.email})
+        raise BadRequestError("Email already used", context={"userEmail": body.email})
     else:
         user = User.from_schema(body)
         user, token = await crud.user.create(db, user)

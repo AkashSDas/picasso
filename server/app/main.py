@@ -10,7 +10,6 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import schemas
 from app.api import auth_router, example_router
 from app.core import settings
 from app.core.exceptions import BadRequestError
@@ -97,10 +96,7 @@ async def bad_request_err_handler(_: Request, e: BadRequestError) -> JSONRespons
     if e.context:
         content = {**content, **e.context}
 
-    return JSONResponse(
-        status_code=e.status_code,
-        content=schemas.SignupEmailAlreadyExistOut(**content).model_dump(by_alias=True),
-    )
+    return JSONResponse(status_code=e.status_code, content=content)
 
 
 @app.exception_handler(RequestValidationError)

@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-if TYPE_CHECKING:
-    from app import schemas
+from app.schemas import User
 
 
 class AuthToken(BaseModel):
@@ -49,4 +46,4 @@ class LoginOut(BaseModel):
 class CompleteMagicLinkLoginOut(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
     access_token: str = Field(..., alias="accessToken")
-    user: "schemas.User"
+    user: User
