@@ -1,12 +1,16 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import BaseDbModel, make_column_unupdateable
 from app.schemas.auth import SignupIn
+
+if TYPE_CHECKING:
+    from app.db.models import MagicLink
 
 
 class User(BaseDbModel):
@@ -44,6 +48,13 @@ class User(BaseDbModel):
         DateTime(timezone=True),
         default=func.now(),
         onupdate=func.now(),  # Automatically updated on any change
+    )
+
+    # One-to-one relationship with MagicLink
+    magic_link_info: Mapped["MagicLink"] = relationship(
+        back_populates="user",
+        uselist=False,
+        lazy="noload",
     )
 
     # Ensure that public_user_id cannot be modified after creation
