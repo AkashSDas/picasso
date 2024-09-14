@@ -48,3 +48,23 @@ class BadRequestError(HTTPException):
             status_code=status.HTTP_400_BAD_REQUEST,
             headers=headers,
         )
+
+
+class UnauthorizedError(HTTPException):
+    def __init__(
+        self,
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        self.context = context
+
+        super().__init__(
+            detail="Unauthorized",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            headers=headers,
+        )
+
+
+class InternalServerError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

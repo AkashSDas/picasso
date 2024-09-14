@@ -1,16 +1,20 @@
 from typing import Literal, Self
 from urllib.parse import quote_plus
 
-from pydantic import (
-    AnyHttpUrl,
-    Json,
-    ValidationInfo,
-    field_validator,
-    model_validator,
-)
+from pydantic import AnyHttpUrl, Json, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LoggerLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
+class AuthSettings(BaseSettings):
+    auth_google_oauth_client_id: str
+    auth_google_oauth_client_secret: str
+
+    auth_jwt_secret_key: str
+    auth_jwt_algorithm: str = "HS256"
+    auth_access_token_expire: int = 5
+    auth_refresh_token_expire: int = 1
 
 
 class DatabaseSettings(BaseSettings):
@@ -54,9 +58,18 @@ class DatabaseSettings(BaseSettings):
         parsed_pwd = quote_plus(str(password))
 
         # Return the constructed asyncpg connection URL
-        return (
-            f"postgresql+asyncpg://{username}:{parsed_pwd}@{host}:{port}/{name}"
-        )
+        return f"postgresql+asyncpg://{username}:{parsed_pwd}@{host}:{port}/{name}"
+
+
+class EmailSettings(BaseSettings):
+    mail_username: str
+    mail_password: str
+    mail_from: str
+    mail_port: int
+    mail_server: str
+    mail_tls: bool
+    mail_ssl: bool
+    mail_use_credentials: bool
 
 
 class LoggerSettings(BaseSettings):
@@ -86,7 +99,7 @@ class LoggerSettings(BaseSettings):
     logger_error_file_path: str = "./logs/error.log"
 
 
-class Settings(DatabaseSettings, LoggerSettings):
+class Settings(AuthSettings, DatabaseSettings, EmailSettings, LoggerSettings):
     """
     This is the main settings class that aggregates database, logger, and other
     settings, and includes application-specific settings like title, version,
