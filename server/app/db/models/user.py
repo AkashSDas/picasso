@@ -6,16 +6,13 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import BaseDbModel, make_column_unupdateable
+from app.schemas.auth import SignupIn
 
 
 class User(BaseDbModel):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(
-        primary_key=True,
-        autoincrement=True,
-        index=True,
-    )
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
 
     # Set a default value using SQL expression, e.g., using a database
     # function or sequence
@@ -26,7 +23,9 @@ class User(BaseDbModel):
         index=True,
     )
 
-    is_active: Mapped[bool] = mapped_column(default=False)
+    email: Mapped[str] = mapped_column(String(255), index=True)
+
+    is_active: Mapped[bool] = mapped_column(default=True)
     is_banned: Mapped[bool] = mapped_column(default=False)
 
     profile_pic_url: Mapped[str] = mapped_column(String(255))
@@ -52,6 +51,13 @@ class User(BaseDbModel):
         super().__init__(**kwargs)
         if "public_user_id" in kwargs:
             raise ValueError("public_user_id cannot be set manually")
+
+    @classmethod
+    def from_schema(cls, schema: SignupIn) -> "User":
+        return cls(
+            email=schema.email,
+            profile_pic_url="/static/images/default-profile.jpg",
+        )
 
 
 make_column_unupdateable(User.public_user_id)
