@@ -1,12 +1,13 @@
 from typing import Annotated, cast
 
-from fastapi import APIRouter, BackgroundTasks, Body, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Request, Response, status
 from pydantic import EmailStr
 
 from app import crud, schemas, utils
 from app.core import log
-from app.core.exceptions import BadRequestError, NotFoundError
+from app.core.exceptions import BadRequestError, NotFoundError, UnauthorizedError
 from app.db.models.user import User
+from app.deps.auth import get_current_user
 from app.deps.db import db_dependency
 
 router = APIRouter()
@@ -49,7 +50,6 @@ async def signup_via_email(
 @router.post(
     "/login/email",
     summary="Login via email",
-    responses={status.HTTP_200_OK: {"model": schemas.LoginOut}},
     response_model=schemas.LoginOut,
 )
 async def init_magic_link_login(
@@ -75,20 +75,25 @@ async def init_magic_link_login(
         return schemas.LoginOut(detail="Magic link login sent to your email")
 
 
-@router.get("/login/email/{token}", summary="Complete magic email login")
+@router.get(
+    "/login/email/{token}",
+    summary="Complete magic email login",
+    response_model=schemas.CompleteMagicLinkOut,
+)
 async def complete_magic_link_login(
     token: str,
     db: db_dependency,
     res: Response,
     background_tasks: BackgroundTasks,
-) -> schemas.CompleteMagicLinkLoginOut:
+) -> schemas.CompleteMagicLinkOut:
     magic_link = await crud.user.get_magic_link_by_hashed_token(db, token)
 
     if not magic_link:
         raise BadRequestError(detail="Magic link is invalid or expired")
     else:
-        access_token = utils.auth.create_access_token({"sub": magic_link.user_id})
-        refresh_token = utils.auth.create_refresh_token({"sub": magic_link.user_id})
+        data: utils.AccessTokenPayload = {"sub": str(magic_link.user_id)}
+        access_token = utils.auth.create_access_token(data)
+        refresh_token = utils.auth.create_refresh_token(data)
 
         user = await crud.user.get_by_id(db, magic_link.id)
         if not user:
@@ -100,6 +105,47 @@ async def complete_magic_link_login(
 
             background_tasks.add_task(crud.user.unset_magic_link, db, magic_link)
 
-            return schemas.CompleteMagicLinkLoginOut(
+            return schemas.CompleteMagicLinkOut(
                 accessToken=access_token, user=user.to_schema()
             )
+
+
+@router.get(
+    "/refresh",
+    summary="Refresh access token",
+    response_model=schemas.RefreshAccessTokenOut,
+)
+async def refresh_access_token(
+    req: Request,
+    db: db_dependency,
+) -> schemas.RefreshAccessTokenOut:
+    refresh_token = req.cookies.get("refresh_token")
+    if not refresh_token:
+        log.info("Refresh token not found")
+        raise UnauthorizedError()
+
+    jwt_payload = utils.auth.verfiy_jwt_token(refresh_token)
+    if not jwt_payload:
+        log.info(f"Invalid JWT payload: {jwt_payload}")
+        raise UnauthorizedError()
+
+    user = await crud.user.get_by_id(db, jwt_payload.user_id)
+    if not user:
+        log.info(f"User not found with user id: {jwt_payload.user_id}")
+        raise UnauthorizedError()
+
+    access_token = utils.auth.create_access_token({"sub": str(user.id)})
+
+    return schemas.RefreshAccessTokenOut(
+        accessToken=access_token, user=user.to_schema()
+    )
+
+
+@router.get(
+    "/logout",
+    summary="Logout logged in user",
+    dependencies=[Depends(get_current_user)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def logout_user(res: Response) -> None:
+    res.delete_cookie(key="refresh_token")
