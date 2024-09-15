@@ -100,7 +100,11 @@ async def complete_magic_link_login(
             raise NotFoundError(f"User with user id ({magic_link.id}) is not found")
         else:
             res.set_cookie(
-                key="refresh_token", value=refresh_token, httponly=True, secure=True
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                max_age=3600,  # 1 hour
             )
 
             background_tasks.add_task(crud.user.unset_magic_link, db, magic_link)
