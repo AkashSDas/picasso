@@ -4,14 +4,17 @@ from typing import Literal, TypedDict
 
 from cryptography.fernet import Fernet
 from jose import JWTError, jwt
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core import settings
+from app import crud
+from app.core import log, settings
 from app.core.exceptions import UnauthorizedError
+from app.db.models.user import User
 from app.schemas.auth import AuthToken
 
 
 class AccessTokenPayload(TypedDict):
-    sub: int
+    sub: str  # subject must be a string
 
 
 class AuthUtils:
@@ -31,11 +34,32 @@ class AuthUtils:
         )
 
     @classmethod
+    async def decode_access_token(cls, db: AsyncSession, token: str) -> User:
+        try:
+            payload = jwt.decode(
+                token,
+                settings.auth_jwt_secret_key,
+                algorithms=[settings.auth_jwt_algorithm],
+            )
+
+            user_id = payload.get("sub")
+            if user_id is None:
+                raise UnauthorizedError()
+
+            user = await crud.user.get_by_id(db, int(user_id))
+
+            if not user:
+                raise UnauthorizedError()
+
+            return user
+        except JWTError as e:
+            log.error(f"Failed to decode access token: {token}, error: {e}")
+            raise UnauthorizedError()
+
+    @classmethod
     def create_refresh_token(cls, data: AccessTokenPayload) -> str:
         to_encode = data.copy()
-        expire = datetime.now(UTC) + timedelta(
-            minutes=settings.auth_refresh_token_expire
-        )
+        expire = datetime.now(UTC) + timedelta(days=settings.auth_refresh_token_expire)
 
         return jwt.encode(
             {**to_encode, "exp": expire},
@@ -52,13 +76,20 @@ class AuthUtils:
                 algorithms=[settings.auth_jwt_algorithm],
             )
 
-            email = payload.get("sub")
-            if email is None:
-                raise UnauthorizedError()
+            user_id = payload.get("sub")
 
-            return AuthToken(email=email)
-        except JWTError:
-            raise UnauthorizedError()
+            if user_id is None:
+                log.error(f"Failed to decode JWT token: {token}")
+                raise UnauthorizedError(
+                    headers={"X-Auth-Error": "Invalid JWT token payload"}
+                )
+
+            return AuthToken(user_id=int(user_id))
+        except JWTError as e:
+            log.error(f"Failed to decode JWT token: {token}, error: {e}")
+            raise UnauthorizedError(
+                headers={"X-Auth-Error": "Failed to decode JWT token"}
+            )
 
     @classmethod
     def generate_token(cls, length: Literal[16, 32, 64]) -> str:

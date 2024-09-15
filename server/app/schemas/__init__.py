@@ -1,8 +1,9 @@
 from .user import User  # isort: split
 from .auth import (
-    CompleteMagicLinkLoginOut,
+    CompleteMagicLinkOut,
     LoginIn,
     LoginOut,
+    RefreshAccessTokenOut,
     SignupEmailAlreadyExistOut,
     SignupIn,
     SignupOut,

@@ -4,7 +4,7 @@ from app.schemas import User
 
 
 class AuthToken(BaseModel):
-    email: EmailStr
+    user_id: int
 
 
 # =============================
@@ -43,7 +43,11 @@ class LoginOut(BaseModel):
     detail: str
 
 
-class CompleteMagicLinkLoginOut(BaseModel):
+class CompleteMagicLinkOut(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
     access_token: str = Field(..., alias="accessToken")
     user: User
+
+
+class RefreshAccessTokenOut(CompleteMagicLinkOut):
+    pass
