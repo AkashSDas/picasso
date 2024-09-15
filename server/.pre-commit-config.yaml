@@ -1,0 +1,50 @@
+default_language_version:
+  python: python3.12
+default_stages: [commit, push]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: check-added-large-files
+        args: ["--maxkb=500"]
+        files: ^server/
+    -   id: check-ast
+        files: ^server/
+    -   id: check-merge-conflict
+        files: ^server/
+    -   id: check-json
+        files: ^server/
+    -   id: check-yaml
+        files: ^server/
+    -   id: check-toml
+        files: ^server/
+    -   id: end-of-file-fixer
+        files: ^server/
+    -   id: name-tests-test
+        args: ["--pytest"] # ensure tests match .*_test\.py
+        files: ^server/app/tests/
+    -   id: pretty-format-json
+        args: ["--autofix"]
+        files: ^server/
+    -   id: trailing-whitespace
+        files: ^server/
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        files: ^server/
+        language_version: python3.12
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+        name: isort (python)
+        files: ^server/
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
+    hooks:
+      - id: ruff
+        args: [ --fix , --exit-non-zero-on-fix ]
+        files: ^server/
+      - id: ruff-format

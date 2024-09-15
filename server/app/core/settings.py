@@ -4,6 +4,20 @@ from urllib.parse import quote_plus
 from pydantic import AnyHttpUrl, Json, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+LoggerLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
+class AuthSettings(BaseSettings):
+    auth_google_oauth_client_id: str
+    auth_google_oauth_client_secret: str
+
+    auth_jwt_secret_key: str
+    auth_jwt_algorithm: str = "HS256"
+    auth_access_token_expire: int = 5
+    auth_refresh_token_expire: int = 1
+
+    auth_magic_token_hash_key: bytes
+
 
 class DatabaseSettings(BaseSettings):
     """
@@ -21,7 +35,12 @@ class DatabaseSettings(BaseSettings):
     db_sqlalchemy_url: str | None = None
 
     @field_validator("db_sqlalchemy_url", mode="before")
-    def create_sqlalchemy_url(cls, v: str | None, field_info: ValidationInfo) -> str:
+    @classmethod
+    def create_sqlalchemy_url(
+        cls,
+        v: str | None,
+        field_info: ValidationInfo,
+    ) -> str:
         """
         Automatically generate the SQLAlchemy database URL if not provided.
         If the URL is already set, return it unchanged.
@@ -44,6 +63,17 @@ class DatabaseSettings(BaseSettings):
         return f"postgresql+asyncpg://{username}:{parsed_pwd}@{host}:{port}/{name}"
 
 
+class EmailSettings(BaseSettings):
+    mail_username: str
+    mail_password: str
+    mail_from: str
+    mail_port: int
+    mail_server: str
+    mail_tls: bool
+    mail_ssl: bool
+    mail_use_credentials: bool
+
+
 class LoggerSettings(BaseSettings):
     """
     This class defines the logger configuration settings, allowing customization
@@ -54,9 +84,10 @@ class LoggerSettings(BaseSettings):
     logger_name: str = "Picasso"
 
     # Log level, defaults to INFO but can be changed to control verbosity
-    logger_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    logger_level: LoggerLevel = "INFO"
 
-    # Log message format, which includes time, level, process/thread info, and more
+    # Log message format, which includes time, level, process/thread info,
+    # and more
     logger_format: str = (
         "[%(asctime)s] [%(levelname)s] [%(name)s] "
         "[PID %(process)d] [TID %(thread)d] [X-ID %(correlation_id)s] "
@@ -70,22 +101,23 @@ class LoggerSettings(BaseSettings):
     logger_error_file_path: str = "./logs/error.log"
 
 
-class Settings(DatabaseSettings, LoggerSettings):
+class Settings(AuthSettings, DatabaseSettings, EmailSettings, LoggerSettings):
     """
-    This is the main settings class that aggregates database, logger, and other settings,
-    and includes application-specific settings like title, version, CORS origins, and debug mode.
+    This is the main settings class that aggregates database, logger, and other
+    settings, and includes application-specific settings like title, version,
+    CORS origins, and debug mode.
     """
 
     # Configuration for Pydantic settings
     model_config = SettingsConfigDict(
-        case_sensitive=False,  # Settings are case-insensitive by default
-        env_file=".env",  # Load settings from the .env file
+        case_sensitive=False,
+        env_file=".env",
         extra="ignore",  # Ignore unknown environment variables
     )
 
     # Application-specific settings
-    app_title: str = "Picasso"  # Title of the application
-    app_version: str = "0.1.0"  # Version of the application
+    app_title: str = "Picasso"
+    app_version: str = "0.1.0"
 
     # CORS origins, expected to be a JSON-formatted list of URLs
     cors_origins: Json[list[AnyHttpUrl]] = "[]"  # type: ignore[assignment]
@@ -110,5 +142,6 @@ class Settings(DatabaseSettings, LoggerSettings):
         return self
 
 
-# Instantiate the settings object, loading from environment variables and defaults.
+# Instantiate the settings object, loading from environment variables
+# and defaults.
 settings = Settings()  # type: ignore[call-arg]
