@@ -18,7 +18,7 @@ httpx = "^0.27.2"
 tenacity = "^9.0.0"
 pydantic = { extras = ["email"], version = "^2.9.1" }
 python-jose = "^3.3.0"
-fastapi-mail = {extras = ["aioredis"], version = "^1.4.1"}
+fastapi-mail = { extras = ["aioredis"], version = "^1.4.1" }
 cryptography = "^43.0.1"
 cloudinary = "^1.41.0"
 
@@ -61,6 +61,7 @@ max-args = 8 # Max num of arguments allowed in a function/method definition
 "app/deps/__init__.py" = ["F401"]
 "app/db/models/__init__.py" = ["F401"]
 "app/schemas/__init__.py" = ["F401"]
+"app/schemas/http/__init__.py" = ["F401"]
 "app/crud/__init__.py" = ["F401"]
 "app/utils/__init__.py" = ["F401"]
 
