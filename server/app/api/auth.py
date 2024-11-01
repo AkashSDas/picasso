@@ -4,152 +4,165 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, Request, Response
 from pydantic import EmailStr
 
 from app import crud, schemas, utils
-from app.core import log
-from app.core.exceptions import BadRequestError, NotFoundError, UnauthorizedError
+from app.core import log, responses, settings
+from app.core.exceptions import BadRequestError, UnauthorizedError
 from app.db.models.user import User
-from app.deps.auth import get_current_user
-from app.deps.db import db_dependency
+from app.deps.auth import current_user
+from app.deps.db import db_dep
+from app.utils.enums import Cookie
 
 router = APIRouter()
 
 
 @router.post(
     "/signup/email",
-    summary="Signup via email",
-    responses={
-        status.HTTP_201_CREATED: {"model": schemas.SignupOut},
-        status.HTTP_400_BAD_REQUEST: {"model": schemas.SignupEmailAlreadyExistOut},
-    },
-    response_model=schemas.SignupOut,
+    summary=(
+        "Signup using email and username. Both of them should be unique. This will "
+        "send magic link for login on the registered email address"
+    ),
+    responses=responses.email_signup,
+    response_model=responses.email_signup[status.HTTP_201_CREATED]["model"],
 )
-async def signup_via_email(
+async def email_signup(
     req: Request,
-    db: db_dependency,
-    body: Annotated[schemas.SignupIn, Body()],
+    db: db_dep,
+    body: Annotated[schemas.http.EmailSignupIn, Body()],
     background_tasks: BackgroundTasks,
-) -> schemas.SignupOut:
-    exists = await crud.user.check_email_exist(db, body.email)
+) -> schemas.http.EmailSignupOut:
+    email_exists = await crud.user.exists_by_email(db, body.email)
+    username_exists = await crud.user.exists_by_username(db, body.username)
 
-    if exists:
-        raise BadRequestError("Email already used", context={"userEmail": body.email})
-    else:
-        user = User.from_schema(body)
-        user, token = await crud.user.create(db, user)
-        log.info(f"Created account for email ({user.email}). ID {user.id}")
+    if email_exists:
+        raise BadRequestError("Email already used")
+    if username_exists:
+        raise BadRequestError("Username already used")
 
-        background_tasks.add_task(
-            utils.email.send_magic_link,
-            cast(EmailStr, user.email),
-            token,
-            str(req.base_url),
-        )
+    user = User.from_schema(body)
+    user, token = await crud.user.create(db, user)
+    log.info(f"Created account for email ({user.email}) with ID {user.id}")
 
-        return schemas.SignupOut(detail="Magic link login sent to your email")
+    background_tasks.add_task(
+        utils.email.send_magic_link,
+        cast(EmailStr, user.email),
+        token,
+        str(req.base_url),
+    )
+
+    return schemas.http.EmailSignupOut(message="Magic link login sent to your email")
 
 
 @router.post(
     "/login/email",
-    summary="Login via email",
-    response_model=schemas.LoginOut,
+    summary=(
+        "Login using email. This will send magic send magic link for login on "
+        "the registered email address"
+    ),
+    responses=responses.email_login,
+    response_model=responses.email_login[status.HTTP_200_OK]["model"],
 )
-async def init_magic_link_login(
+async def email_login(
     req: Request,
-    db: db_dependency,
-    body: Annotated[schemas.LoginIn, Body()],
+    db: db_dep,
+    body: Annotated[schemas.http.EmailLoginIn, Body()],
     background_tasks: BackgroundTasks,
-) -> schemas.LoginOut:
-    user = await crud.user.get(db, body.email)
+) -> schemas.http.EmailLoginOut:
+    user = await crud.user.get_by_email(db, body.email)
 
     if not user:
-        raise NotFoundError(f"User not found with email: {body.email}")
-    else:
-        token = await crud.user.upsert_magic_link(db, user)
+        raise BadRequestError("Account doesn't exists")
 
-        background_tasks.add_task(
-            utils.email.send_magic_link,
-            cast(EmailStr, user.email),
-            token,
-            str(req.base_url),
-        )
+    token = await crud.magic_link.upsert_magic_link(db, user)
 
-        return schemas.LoginOut(detail="Magic link login sent to your email")
+    background_tasks.add_task(
+        utils.email.send_magic_link,
+        cast(EmailStr, user.email),
+        token,
+        str(req.base_url),
+    )
+
+    return schemas.http.EmailLoginOut(message="Magic link login sent to your email")
 
 
 @router.get(
     "/login/email/{token}",
-    summary="Complete magic email login",
-    response_model=schemas.CompleteMagicLinkOut,
+    summary=(
+        "Complete magic link login and then set refresh token and sending access token"
+    ),
+    responses=responses.complete_email_login,
+    response_model=responses.complete_email_login[status.HTTP_200_OK]["model"],
 )
-async def complete_magic_link_login(
+async def complete_email_login(
     token: str,
-    db: db_dependency,
+    db: db_dep,
     res: Response,
     background_tasks: BackgroundTasks,
-) -> schemas.CompleteMagicLinkOut:
-    magic_link = await crud.user.get_magic_link_by_hashed_token(db, token)
+) -> schemas.http.CompleteEmailLoginOut:
+    result = await crud.magic_link.get_by_hashed_token(db, token)
 
-    if not magic_link:
-        raise BadRequestError(detail="Magic link is invalid or expired")
-    else:
-        data: utils.AccessTokenPayload = {"sub": str(magic_link.user_id)}
-        access_token = utils.auth.create_access_token(data)
-        refresh_token = utils.auth.create_refresh_token(data)
+    if result is None:
+        raise BadRequestError("Magic login link is invalid or expired")
 
-        user = await crud.user.get_by_id(db, magic_link.id)
-        if not user:
-            raise NotFoundError(f"User with user id ({magic_link.id}) is not found")
-        else:
-            res.set_cookie(
-                key="refresh_token",
-                value=refresh_token,
-                httponly=True,
-                secure=True,
-                max_age=3600,  # 1 hour
-            )
+    magic_link, user_id = result
 
-            background_tasks.add_task(crud.user.unset_magic_link, db, magic_link)
+    data: utils.AccessTokenPayload = {"sub": str(user_id)}
+    access_token = utils.auth.create_access_token(data)
+    refresh_token = utils.auth.create_refresh_token(data)
 
-            return schemas.CompleteMagicLinkOut(
-                accessToken=access_token, user=user.to_schema()
-            )
+    user = await crud.user.get_by_public_user_id(db, user_id)
+    if not user:
+        raise BadRequestError("Account doesn't exists")
+
+    res.set_cookie(
+        key=Cookie.REFRESH_TOKEN.value,
+        value=refresh_token,
+        httponly=True,
+        secure=settings.environment == "production",
+        max_age=settings.auth_refresh_token_expire_in_ms,
+    )
+
+    background_tasks.add_task(crud.magic_link.unset_magic_link, db, magic_link)
+
+    return schemas.http.CompleteEmailLoginOut(
+        accessToken=access_token,
+        user=user.to_schema(),
+    )
 
 
 @router.get(
     "/refresh",
     summary="Refresh access token",
-    response_model=schemas.RefreshAccessTokenOut,
+    responses=responses.refresh_access_token,
+    response_model=responses.refresh_access_token[status.HTTP_200_OK]["model"],
 )
 async def refresh_access_token(
     req: Request,
-    db: db_dependency,
-) -> schemas.RefreshAccessTokenOut:
-    refresh_token = req.cookies.get("refresh_token")
-    if not refresh_token:
-        log.info("Refresh token not found")
+    db: db_dep,
+) -> schemas.http.RefreshAccessTokenOut:
+    refresh_token = req.cookies.get(Cookie.REFRESH_TOKEN.value)
+    if refresh_token is None:
         raise UnauthorizedError()
 
-    jwt_payload = utils.auth.verfiy_jwt_token(refresh_token)
+    jwt_payload = utils.auth.verify_jwt_token(refresh_token, "refresh")
     if not jwt_payload:
-        log.info(f"Invalid JWT payload: {jwt_payload}")
         raise UnauthorizedError()
 
-    user = await crud.user.get_by_id(db, jwt_payload.user_id)
+    user = await crud.user.get_by_public_user_id(db, jwt_payload.user_id)
     if not user:
-        log.info(f"User not found with user id: {jwt_payload.user_id}")
         raise UnauthorizedError()
 
-    access_token = utils.auth.create_access_token({"sub": str(user.id)})
+    access_token = utils.auth.create_access_token({"sub": str(user.public_user_id)})
 
-    return schemas.RefreshAccessTokenOut(
-        accessToken=access_token, user=user.to_schema()
+    return schemas.http.RefreshAccessTokenOut(
+        accessToken=access_token,
+        user=user.to_schema(),
     )
 
 
 @router.get(
     "/logout",
-    summary="Logout logged in user",
-    dependencies=[Depends(get_current_user)],
+    summary="Logout user",
+    dependencies=[Depends(current_user)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def logout_user(res: Response) -> None:
-    res.delete_cookie(key="refresh_token")
+    res.delete_cookie(key=Cookie.REFRESH_TOKEN.value)
