@@ -29,7 +29,7 @@ class StyleFilterCRUD:
         return instances
 
     @staticmethod
-    async def get_many(
+    async def get_many_by_ids(
         db: AsyncSession,
         filter_public_ids: list[UUID],
     ) -> list[StyleFilter]:
@@ -42,25 +42,25 @@ class StyleFilterCRUD:
         return list(result.scalars())
 
     @staticmethod
-    async def get_many_by_author(
+    async def get_many(
         db: AsyncSession,
-        author_id: UUID,
         *,
+        author_id: UUID | None = None,
         limit: int = 20,
         offset: int = 0,
     ) -> tuple[list[StyleFilter], int]:
+        stmt = select(StyleFilter)
+        total_stmt = select(func.count())
+
+        if author_id is not None:
+            stmt = stmt.join(User).where(User.public_user_id == author_id)
+            total_stmt = total_stmt.join(User).where(User.public_user_id == author_id)
+
         result = await db.execute(
-            select(StyleFilter)
-            .join(User)
-            .where(User.public_user_id == author_id)
-            .limit(limit)
-            .offset(offset)
-            .order_by(desc(StyleFilter.created_at))
+            stmt.limit(limit).offset(offset).order_by(desc(StyleFilter.created_at))
         )
 
-        total = await db.execute(
-            select(func.count()).join(User).where(User.public_user_id == author_id)
-        )
+        total = await db.execute(total_stmt)
 
         return list(result.scalars()), total.scalar() or 0
 

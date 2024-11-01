@@ -30,5 +30,5 @@ class ReportStyleFilterOut(BaseModel):
 # =============================
 
 
-class AuthorStyleFiltersOut(UploadStyleFiltersOut):
+class GetStyleFiltersOut(UploadStyleFiltersOut):
     total: int = Field(..., ge=0)

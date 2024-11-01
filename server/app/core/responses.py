@@ -136,10 +136,10 @@ report_style_filter: Responses = {
 }
 
 
-author_style_filters: Responses = {
-    status.HTTP_201_CREATED: {
-        "description": "Get author's style filters",
-        "model": schemas.http.UploadStyleFiltersOut,
+get_style_filters: Responses = {
+    status.HTTP_200_OK: {
+        "description": "Get style filters",
+        "model": schemas.http.GetStyleFiltersOut,
     },
     **_base_responses,
     **_bad_request_response,

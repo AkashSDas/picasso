@@ -15,7 +15,7 @@ from .auth import (
     RefreshAccessTokenOut,
 )
 from .style_filter import (
-    AuthorStyleFiltersOut,
+    GetStyleFiltersOut,
     ReportStyleFilterOut,
     UploadStyleFiltersOut,
 )

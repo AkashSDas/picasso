@@ -12,6 +12,7 @@ class ReportStyleFilterQuery(BaseModel):
     type: Literal["increment", "decrement"]
 
 
-class AuthorStyleFiltersQuery(BaseModel):
+class GetStyleFiltersQuery(BaseModel):
     limit: int = Field(20, ge=0, le=100)
     offset: int = Field(0, ge=0)
+    author_id: UUID | None = None

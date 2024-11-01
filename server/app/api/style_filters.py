@@ -74,7 +74,7 @@ async def delete_filters(
     user: deps.current_user_dep,
     query: Annotated[schemas.StyleFilterDeleteQuery, Query()],
 ) -> None:
-    filters = await crud.style_filters.get_many(db, query.filter_ids)
+    filters = await crud.style_filters.get_many_by_ids(db, query.filter_ids)
 
     if len(filters) == 0:
         raise NotFoundError()
@@ -120,28 +120,24 @@ async def report_style_filter(
 
 
 @router.get(
-    "/author/{author_id}",
-    summary="Get author style filters",
+    "",
+    summary="Get style filters",
     status_code=status.HTTP_200_OK,
-    responses=responses.author_style_filters,
-    response_model=responses.author_style_filters[status.HTTP_200_OK]["model"],
+    responses=responses.get_style_filters,
+    response_model=responses.get_style_filters[status.HTTP_200_OK]["model"],
 )
-async def get_author_style_filters(
+async def get_style_filters(
     db: deps.db_dep,
-    author_id: UUID,
-    query: Annotated[schemas.AuthorStyleFiltersQuery, Query()],
-) -> schemas.http.AuthorStyleFiltersOut:
-    filters, total = await crud.style_filters.get_many_by_author(
+    query: Annotated[schemas.GetStyleFiltersQuery, Query()],
+) -> schemas.http.GetStyleFiltersOut:
+    filters, total = await crud.style_filters.get_many(
         db,
-        author_id,
+        author_id=query.author_id,
         limit=query.limit,
         offset=query.offset,
     )
 
-    return schemas.http.AuthorStyleFiltersOut(
+    return schemas.http.GetStyleFiltersOut(
         filters=[filter.to_schema() for filter in filters],
         total=total,
     )
-
-
-# SEARCH
