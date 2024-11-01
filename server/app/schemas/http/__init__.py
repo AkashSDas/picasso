@@ -3,6 +3,7 @@ from .base import (  # isort: split
     ConflictErrorResponse,
     InternalServerErrorResponse,
     NotFoundErrorResponse,
+    ForbiddenErrorResponse,
     UnauthorizedErrorResponse,
 )
 from .auth import (

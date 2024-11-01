@@ -29,6 +29,10 @@ class ConflictErrorResponse(ErrorResponse):
     pass
 
 
+class ForbiddenErrorResponse(ErrorResponse):
+    pass
+
+
 class InternalServerErrorResponse(ErrorResponse):
     pass
 

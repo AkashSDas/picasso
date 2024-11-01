@@ -38,6 +38,14 @@ _unauthorized_response: Responses = {
     }
 }
 
+_forbidden_response: Responses = {
+    status.HTTP_403_FORBIDDEN: {
+        "description": "Forbidden",
+        "model": schemas.http.ForbiddenErrorResponse,
+    }
+}
+
+
 # =======================
 # Auth
 # =======================
@@ -105,5 +113,14 @@ upload_style_filters: Responses = {
     },
     **_base_responses,
     **_bad_request_response,
+    **_unauthorized_response,
+}
+
+
+delete_style_filters: Responses = {
+    status.HTTP_204_NO_CONTENT: {"description": "Style filters deleted"},
+    **_base_responses,
+    **_bad_request_response,
+    **_forbidden_response,
     **_unauthorized_response,
 }

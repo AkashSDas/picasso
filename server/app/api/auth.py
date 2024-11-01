@@ -163,6 +163,7 @@ async def refresh_access_token(
     summary="Logout user",
     dependencies=[Depends(current_user)],
     status_code=status.HTTP_204_NO_CONTENT,
+    responses=responses.logout_user,
 )
 async def logout_user(res: Response) -> None:
     res.delete_cookie(key=Cookie.REFRESH_TOKEN.value)

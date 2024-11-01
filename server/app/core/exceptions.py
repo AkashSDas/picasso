@@ -84,6 +84,23 @@ class ConflictError(HttpError):
         )
 
 
+class ForbiddenError(HttpError):
+    def __init__(
+        self,
+        message: str = "Forbidden",
+        reason: str = "Forbidden",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
+        )
+
+
 class InternalServerError(HttpError):
     def __init__(
         self,

@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import StyleFilter
@@ -6,7 +9,7 @@ from app.utils import FilterUploadResult
 
 class StyleFilterCRUD:
     @staticmethod
-    async def create_filters(
+    async def create_many(
         db: AsyncSession,
         style_filters: list[FilterUploadResult],
         author_id: int,
@@ -24,6 +27,25 @@ class StyleFilterCRUD:
             await db.refresh(instance)
 
         return instances
+
+    @staticmethod
+    async def get_many(
+        db: AsyncSession,
+        filter_public_ids: list[UUID],
+    ) -> list[StyleFilter]:
+        result = await db.execute(
+            select(StyleFilter).where(
+                StyleFilter.public_filter_id.in_(filter_public_ids)
+            )
+        )
+
+        return list(result.scalars())
+
+    @staticmethod
+    async def delete_many(db: AsyncSession, filter_ids: list[int]) -> None:
+        await db.execute(
+            delete(StyleFilter).where(StyleFilter.id.in_(filter_ids)),
+        )
 
 
 style_filters = StyleFilterCRUD()
