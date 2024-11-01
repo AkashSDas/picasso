@@ -5,6 +5,7 @@ from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app import schemas
 from app.db.base import BaseDbModel, make_column_unupdateable
 from app.db.models.user import User
 
@@ -77,12 +78,32 @@ class StyleFilter(BaseDbModel):
         )
 
     @classmethod
-    def from_upload_result(cls, upload_result: "FilterUploadResult") -> "StyleFilter":
+    def from_upload_result(
+        cls,
+        upload_result: "FilterUploadResult",
+        author_id: int,
+    ) -> "StyleFilter":
         return cls(
             base_img_url=upload_result.base_img_url,
             blur_img_url=upload_result.blur_img_url,
             small_img_url=upload_result.small_img_url,
             img_id=upload_result.img_id,
+            author_id=author_id,
+        )
+
+    def to_schema(self) -> schemas.StyleFilter:
+        return schemas.StyleFilter.model_validate(
+            {
+                "filter_id": self.public_filter_id,
+                "author_id": self.author_id,
+                "img_id": self.img_id,
+                "img_url": self.base_img_url,
+                "blur_img_url": self.blur_img_url,
+                "small_img_url": self.small_img_url,
+                "is_official": self.is_official,
+                "is_banned": self.is_banned,
+                "report_count": self.report_count,
+            }
         )
 
 

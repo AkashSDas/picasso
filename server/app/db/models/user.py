@@ -2,13 +2,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import CheckConstraint, DateTime, Integer, String, func
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import schemas
 from app.db.base import BaseDbModel, make_column_unupdateable
-from app.schemas.auth import SignupIn
 
 if TYPE_CHECKING:
     from app.db.models import MagicLink, StyleFilter
@@ -42,19 +41,6 @@ class User(BaseDbModel):
 
     # ID for profile pic management (for use with S3 or other storage)
     profile_pic_id: Mapped[str | None] = mapped_column(String(32))
-
-    # To keep a check on how much uploads are being made and restrict num of upload
-    # a user can do in a "given timeframe"
-    upload_consumed: Mapped[int] = mapped_column(
-        Integer,
-        CheckConstraint("upload_consumed >= 0"),
-        default=0,
-    )
-
-    upload_consumed_updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=func.now(),
-    )
 
     # Automatically set by the DB when the record is created
     created_at: Mapped[datetime] = mapped_column(
@@ -102,7 +88,7 @@ class User(BaseDbModel):
         return f"User({self.id}, {self.public_user_id}, {self.username})"
 
     @classmethod
-    def from_schema(cls, schema: SignupIn) -> "User":
+    def from_schema(cls, schema: schemas.http.EmailSignupIn) -> "User":
         return cls(
             email=schema.email,
             username=schema.username,
