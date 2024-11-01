@@ -1,7 +1,16 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -43,6 +52,19 @@ class StyleFilter(BaseDbModel):
         Integer,
         CheckConstraint("report_count >= 0"),
         default=0,
+    )
+
+    # Automatically set by the DB when the record is created
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),  # Automatically set on record creation
+    )
+
+    # Automatically updated by the DB when the record is updated
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        onupdate=func.now(),  # Automatically updated on any change
     )
 
     # Don't delete filter if the user is deleted, just set the foreign key to NULL
@@ -108,3 +130,4 @@ class StyleFilter(BaseDbModel):
 
 
 make_column_unupdateable(StyleFilter.public_filter_id)
+make_column_unupdateable(StyleFilter.created_at)
