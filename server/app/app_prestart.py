@@ -1,25 +1,25 @@
+"""
+This is a script that run before the application is started. This will take care of
+connecting to the database and retry several times before crashing if it's failing
+to connect to the database
+"""
+
 import asyncio
 import logging
 
 from sqlalchemy import text
-from tenacity import (
-    after_log,
-    before_log,
-    retry,
-    stop_after_attempt,
-    wait_fixed,
-)
+from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 from app.core import log
 from app.db.base import AsyncDbSession
 
-max_tries = 60 * 5  # 5 minutes
-wait_seconds = 1
+MAX_RETRIES = 60 * 5
+WAIT_SECONDS = 1
 
 
 @retry(
-    stop=stop_after_attempt(max_tries),
-    wait=wait_fixed(wait_seconds),
+    stop=stop_after_attempt(MAX_RETRIES),
+    wait=wait_fixed(WAIT_SECONDS),
     before=before_log(log, logging.INFO),
     after=after_log(log, logging.WARN),
 )
@@ -30,7 +30,7 @@ async def init() -> None:
         await db.execute(text("SELECT 1"))
         return
     except Exception as e:
-        log.error(e)
+        log.critical(f"Failed to connect to the database: {e}")
         raise e
     finally:
         await db.close()
