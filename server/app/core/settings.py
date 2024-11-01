@@ -11,8 +11,8 @@ class AuthSettings(BaseSettings):
     auth_jwt_algorithm: str = "HS256"
     auth_access_token_secret_key: str
     auth_refresh_token_secret_key: str
-    auth_access_token_expire: int = 5
-    auth_refresh_token_expire: int = 1
+    auth_access_token_expire_in_ms: int = 5 * 60 * 1000
+    auth_refresh_token_expire_in_ms: int = 24 * 60 * 60 * 1000
 
     auth_crypto_hash_key: bytes
 

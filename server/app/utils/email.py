@@ -15,7 +15,7 @@ conf = ConnectionConfig(
 )
 
 
-class EmailUtils:
+class EmailManager:
     @classmethod
     async def send_magic_link(cls, email: EmailStr, token: str, base_url: str) -> None:
         try:
@@ -35,4 +35,4 @@ class EmailUtils:
             log.error(f"Failed to send magic link email: {e}")
 
 
-email = EmailUtils()
+email = EmailManager()

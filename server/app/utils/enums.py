@@ -8,6 +8,12 @@ class HttpHeader(Enum):
     PROCESS_TIME = "X-Process-Time"
 
 
+class Cookie(Enum):
+    """Cookie keys used in the application"""
+
+    REFRESH_TOKEN = "refresh_token"
+
+
 class CloudinaryFolderPath(Enum):
     """Assets folder paths in Cloudinary"""
 
