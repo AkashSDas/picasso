@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import case, delete, literal, select, update
+from sqlalchemy import case, delete, desc, func, literal, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import StyleFilter
+from app.db.models import StyleFilter, User
 from app.utils import FilterUploadResult
 
 
@@ -40,6 +40,29 @@ class StyleFilterCRUD:
         )
 
         return list(result.scalars())
+
+    @staticmethod
+    async def get_many_by_author(
+        db: AsyncSession,
+        author_id: UUID,
+        *,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> tuple[list[StyleFilter], int]:
+        result = await db.execute(
+            select(StyleFilter)
+            .join(User)
+            .where(User.public_user_id == author_id)
+            .limit(limit)
+            .offset(offset)
+            .order_by(desc(StyleFilter.created_at))
+        )
+
+        total = await db.execute(
+            select(func.count()).join(User).where(User.public_user_id == author_id)
+        )
+
+        return list(result.scalars()), total.scalar() or 0
 
     @staticmethod
     async def get_report_count(db: AsyncSession, filter_public_id: UUID) -> int | None:

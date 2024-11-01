@@ -101,7 +101,7 @@ async def report_style_filter(
     db: deps.db_dep,
     filter_id: UUID,
     query: Annotated[schemas.ReportStyleFilterQuery, Query()],
-) -> schemas.http.ReportStyleFilter:
+) -> schemas.http.ReportStyleFilterOut:
     filter_count = await crud.style_filters.get_report_count(db, filter_id)
 
     if filter_count is None:
@@ -116,8 +116,32 @@ async def report_style_filter(
         is_banned=is_banned,
     )
 
-    return schemas.http.ReportStyleFilter(is_banned=is_banned)
+    return schemas.http.ReportStyleFilterOut(is_banned=is_banned)
 
 
-# GET authors
+@router.get(
+    "/author/{author_id}",
+    summary="Get author style filters",
+    status_code=status.HTTP_200_OK,
+    responses=responses.author_style_filters,
+    response_model=responses.author_style_filters[status.HTTP_200_OK]["model"],
+)
+async def get_author_style_filters(
+    db: deps.db_dep,
+    author_id: UUID,
+    query: Annotated[schemas.AuthorStyleFiltersQuery, Query()],
+) -> schemas.http.AuthorStyleFiltersOut:
+    filters, total = await crud.style_filters.get_many_by_author(
+        db,
+        author_id,
+        limit=query.limit,
+        offset=query.offset,
+    )
+
+    return schemas.http.AuthorStyleFiltersOut(
+        filters=[filter.to_schema() for filter in filters],
+        total=total,
+    )
+
+
 # SEARCH
