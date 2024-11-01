@@ -1,11 +1,7 @@
 from typing import Any
 
 from sqlalchemy import event
-from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, InstanceState
 from sqlalchemy.orm.attributes import Event, InstrumentedAttribute
 from sqlalchemy.util.langhelpers import symbol

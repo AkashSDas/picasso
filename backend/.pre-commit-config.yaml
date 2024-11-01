@@ -7,32 +7,32 @@ repos:
     hooks:
     -   id: check-added-large-files
         args: ["--maxkb=500"]
-        files: ^server/
+        files: ^backend/
     -   id: check-ast
-        files: ^server/
+        files: ^backend/
     -   id: check-merge-conflict
-        files: ^server/
+        files: ^backend/
     -   id: check-json
-        files: ^server/
+        files: ^backend/
     -   id: check-yaml
-        files: ^server/
+        files: ^backend/
     -   id: check-toml
-        files: ^server/
+        files: ^backend/
     -   id: end-of-file-fixer
-        files: ^server/
+        files: ^backend/
     -   id: name-tests-test
         args: ["--pytest"] # ensure tests match .*_test\.py
-        files: ^server/app/tests/
+        files: ^backend/app/tests/
     -   id: pretty-format-json
         args: ["--autofix"]
-        files: ^server/
+        files: ^backend/
     -   id: trailing-whitespace
-        files: ^server/
+        files: ^backend/
   - repo: https://github.com/psf/black
     rev: 24.8.0
     hooks:
       - id: black
-        files: ^server/
+        files: ^backend/
         language_version: python3.12
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
@@ -40,11 +40,11 @@ repos:
       - id: isort
         args: ["--profile", "black"]
         name: isort (python)
-        files: ^server/
+        files: ^backend/
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.4
     hooks:
       - id: ruff
         args: [ --fix , --exit-non-zero-on-fix ]
-        files: ^server/
+        files: ^backend/
       - id: ruff-format
