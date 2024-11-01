@@ -27,11 +27,12 @@ class User(BaseDbModel):
     # function or sequence. This will be public facing user id
     public_user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
-        default=uuid4(),
+        default=uuid4,
         unique=True,
         index=True,
     )
 
+    username: Mapped[str] = mapped_column(String(255), index=True, unique=True)
     email: Mapped[str] = mapped_column(String(255), index=True)
 
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -41,19 +42,6 @@ class User(BaseDbModel):
 
     # ID for profile pic management (for use with S3 or other storage)
     profile_pic_id: Mapped[str | None] = mapped_column(String(32))
-
-    # Automatically set by the DB when the record is created
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=func.now(),  # Automatically set on record creation
-    )
-
-    # Automatically updated by the DB when the record is updated
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=func.now(),
-        onupdate=func.now(),  # Automatically updated on any change
-    )
 
     # To keep a check on how much uploads are being made and restrict num of upload
     # a user can do in a "given timeframe"
@@ -68,18 +56,31 @@ class User(BaseDbModel):
         default=func.now(),
     )
 
+    # Automatically set by the DB when the record is created
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),  # Automatically set on record creation
+    )
+
+    # Automatically updated by the DB when the record is updated
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        onupdate=func.now(),  # Automatically updated on any change
+    )
+
     # ===========================
     # Relationships
     # ===========================
 
     # One-to-one relationship with MagicLink
-    magic_link_info: Mapped["MagicLink"] = relationship(
+    magic_link: Mapped["MagicLink"] = relationship(
         back_populates="user",
         uselist=False,
         lazy="noload",
     )
 
-    # One-to-many relationships with StyleFiter
+    # One-to-many relationships with StyleFilter
     style_filters: Mapped["StyleFilter"] = relationship(
         back_populates="author",
         # Performs an immediate join using SQL's JOIN clause when the parent object
@@ -92,15 +93,19 @@ class User(BaseDbModel):
     # ===========================
 
     # Ensure that public_user_id cannot be modified after creation
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if "public_user_id" in kwargs:
             raise ValueError("public_user_id cannot be set manually")
+
+    def __str__(self) -> str:
+        return f"User({self.id}, {self.public_user_id}, {self.username})"
 
     @classmethod
     def from_schema(cls, schema: SignupIn) -> "User":
         return cls(
             email=schema.email,
+            username=schema.username,
             profile_pic_url="/static/images/default-profile.jpg",
         )
 
@@ -110,6 +115,7 @@ class User(BaseDbModel):
                 "user_id": self.public_user_id,
                 "profile_pic_url": self.profile_pic_url,
                 "email": self.email,
+                "username": self.username,
             }
         )
 

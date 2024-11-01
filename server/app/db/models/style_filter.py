@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String
@@ -6,6 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import BaseDbModel, make_column_unupdateable
 from app.db.models.user import User
+
+if TYPE_CHECKING:
+    from app.utils import FilterUploadResult
 
 
 class StyleFilter(BaseDbModel):
@@ -22,7 +26,15 @@ class StyleFilter(BaseDbModel):
         index=True,
     )
 
-    # Where the image is uploaded by an external user or the platform itself
+    base_img_url: Mapped[str] = mapped_column(String(2048))
+    blur_img_url: Mapped[str] = mapped_column(String(2048))
+    small_img_url: Mapped[str] = mapped_column(String(2048))
+
+    # ID provided by the storage service, which can be used to delete it. In case
+    # we give img url, like paste it, that time we won't have img id and hence optional
+    img_id: Mapped[str | None] = mapped_column(String(32))
+
+    # Is the image uploaded by an external user or the platform itself
     is_official: Mapped[bool] = mapped_column(Boolean, default=False)
 
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -31,13 +43,6 @@ class StyleFilter(BaseDbModel):
         CheckConstraint("report_count >= 0"),
         default=0,
     )
-
-    img_url: Mapped[str] = mapped_column(String(255))
-
-    # ID provided by the storage service, which can be used to delete it img url
-    # in case of replacing/deleting. It may happen that we only give filter an img
-    # URL and in that case it won't have an id
-    img_id: Mapped[str | None] = mapped_column(String(32))
 
     # Don't delete filter if the user is deleted, just set the foreign key to NULL
     author_id: Mapped[int | None] = mapped_column(
@@ -60,10 +65,25 @@ class StyleFilter(BaseDbModel):
     )
 
     # Ensure that public_user_id cannot be modified after creation
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if "public_filter_id" in kwargs:
             raise ValueError("public_filter_id cannot be set manually")
+
+    def __str__(self) -> str:
+        return (
+            f"StyleFilter({self.id}, {self.public_filter_id}, {self.img_id}, "
+            f"{self.author_id})"
+        )
+
+    @classmethod
+    def from_upload_result(cls, upload_result: "FilterUploadResult") -> "StyleFilter":
+        return cls(
+            base_img_url=upload_result.base_img_url,
+            blur_img_url=upload_result.blur_img_url,
+            small_img_url=upload_result.small_img_url,
+            img_id=upload_result.img_id,
+        )
 
 
 make_column_unupdateable(StyleFilter.public_filter_id)
