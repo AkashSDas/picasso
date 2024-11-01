@@ -2,6 +2,7 @@ import time
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI, Request, Response, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -10,9 +11,9 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import auth_router, example_router
-from app.core import settings
-from app.core.exceptions import BadRequestError
+from app.api import auth_router
+from app.core import log, settings
+from app.core.exceptions import HttpError
 from app.utils.enums import HttpHeader
 
 app = FastAPI(
@@ -40,6 +41,8 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=500)  # 500 bytes
 
 if settings.environment == "production":
+    log.info("Adding production related middlewares")
+
     # Automatically redirect HTTP requests to HTTPS
     app.add_middleware(HTTPSRedirectMiddleware)
 
@@ -81,26 +84,54 @@ async def add_process_time_header(req: Request, call_next) -> Response:
 # =========================
 
 
-@app.exception_handler(BadRequestError)
-async def bad_request_err_handler(_: Request, e: BadRequestError) -> JSONResponse:
-    content = {"detail": e.detail}
-    if e.context:
-        content = {**content, **e.context}
+@app.exception_handler(HttpError)
+async def http_err_handler(_: Request, e: HttpError) -> JSONResponse:
+    content = jsonable_encoder(
+        {
+            "reason": e.reason,
+            "message": e.message,
+            **(e.context if e.context else {}),
+        }
+    )
 
-    return JSONResponse(status_code=e.status_code, content=content)
+    log.error(f"HTTP request error {e.status_code}: {content}")
+    return JSONResponse(status_code=e.status_code, headers=e.headers, content=content)
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_err_handler(_: Request, e: RequestValidationError) -> JSONResponse:
-    content = {"detail": "Validation Error", "errors": e.errors()}
-    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=content)
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=jsonable_encoder(
+            {
+                "reason": "Bad Request",
+                "message": "Validation Error",
+                "errors": e.errors(),
+            }
+        ),
+    )
+
+
+@app.exception_handler(Exception)
+async def global_err_handler(_: Request, e: Exception) -> JSONResponse:
+    content = jsonable_encoder(
+        {
+            "reason": "Unhandled Exceptions",
+            "message": "Internal Server Error",
+        }
+    )
+
+    log.error(f"Unhandled exception: {e}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=content,
+    )
 
 
 # =========================
 # Routers
 # =========================
 
-app.include_router(example_router, prefix="/api/example", tags=["Example"])
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 
 

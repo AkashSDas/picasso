@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import HTTPException, status
+from fastapi import status
 
 
 class NonUpdateableColumnError(AttributeError):
@@ -34,45 +34,102 @@ class NonUpdateableColumnError(AttributeError):
 # ============================
 
 
-class BadRequestError(HTTPException):
+class HttpError(Exception):
     def __init__(
         self,
-        detail: str,
+        status_code: int,
+        message: str,
+        reason: str,
         context: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> None:
+        self.status_code = status_code
+        self.message = message
+        self.reason = reason
         self.context = context
+        self.headers = headers
 
+
+class BadRequestError(HttpError):
+    def __init__(
+        self,
+        message: str = "Bad Request",
+        reason: str = "Bad Request",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(
-            detail=detail,
             status_code=status.HTTP_400_BAD_REQUEST,
+            message=message,
+            reason=reason,
+            context=context,
             headers=headers,
         )
 
 
-class UnauthorizedError(HTTPException):
+class ConflictError(HttpError):
     def __init__(
         self,
+        message: str = "Conflict",
+        reason: str = "Conflict",
         context: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> None:
-        self.context = context
-
         super().__init__(
-            detail="Unauthorized",
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_409_CONFLICT,
+            message=message,
+            reason=reason,
+            context=context,
             headers=headers,
         )
 
 
-class InternalServerError(HTTPException):
-    def __init__(self):
-        super().__init__(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class NotFoundError(HTTPException):
-    def __init__(self, detail: str | None = None) -> None:
+class InternalServerError(HttpError):
+    def __init__(
+        self,
+        message: str = "Internal Server Error",
+        reason: str = "Internal Server Error",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(
-            detail=detail if detail else "Not Found",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
+        )
+
+
+class NotFoundError(HttpError):
+    def __init__(
+        self,
+        message: str = "Not Found",
+        reason: str = "Not Found",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
+        )
+
+
+class UnauthorizedError(HttpError):
+    def __init__(
+        self,
+        message: str = "Unauthorized",
+        reason: str = "Unauthorized",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
         )
