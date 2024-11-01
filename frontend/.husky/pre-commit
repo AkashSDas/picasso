@@ -1,0 +1,3 @@
+# frontend/.husky/pre-push
+cd ./frontend
+pnpx lint-staged

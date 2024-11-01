@@ -14,7 +14,7 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:e2e": "playwright test",
-        "prepare": "cd .. && husky ./client/.husky",
+        "prepare": "cd .. && husky ./frontend/.husky",
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
         "test-storybook": "test-storybook"
