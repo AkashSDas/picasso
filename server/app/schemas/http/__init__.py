@@ -14,4 +14,8 @@ from .auth import (
     EmailSignupOut,
     RefreshAccessTokenOut,
 )
-from .style_filter import ReportStyleFilter, UploadStyleFiltersOut
+from .style_filter import (
+    AuthorStyleFiltersOut,
+    ReportStyleFilterOut,
+    UploadStyleFiltersOut,
+)

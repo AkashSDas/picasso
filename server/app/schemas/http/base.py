@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 # ===========================
 # Utilities
@@ -21,8 +21,8 @@ class PydanticErrorResponse(ErrorResponse):
 # ===========================
 
 
-class BadRequestErrorResponse(BaseModel):
-    __root__: PydanticErrorResponse | ErrorResponse
+class BadRequestErrorResponse(RootModel[PydanticErrorResponse | ErrorResponse]):
+    pass
 
 
 class ConflictErrorResponse(ErrorResponse):
