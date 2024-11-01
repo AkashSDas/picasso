@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import case, delete, literal, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import StyleFilter
@@ -40,6 +40,37 @@ class StyleFilterCRUD:
         )
 
         return list(result.scalars())
+
+    @staticmethod
+    async def get_report_count(db: AsyncSession, filter_public_id: UUID) -> int | None:
+        result = await db.execute(
+            select(StyleFilter.report_count)
+            .where(StyleFilter.public_filter_id == filter_public_id)
+            .limit(1)
+        )
+
+        return result.scalar()
+
+    @staticmethod
+    async def change_report_count(
+        db: AsyncSession,
+        filter_public_id: UUID,
+        is_increment: bool,
+        is_banned: bool,
+    ) -> None:
+        await db.execute(
+            update(StyleFilter)
+            .where(StyleFilter.public_filter_id == filter_public_id)
+            .values(
+                report_count=case(
+                    (literal(is_increment), StyleFilter.report_count + 1),
+                    else_=StyleFilter.report_count - 1,
+                ),
+                is_banned=case((literal(is_banned), True), else_=False),
+            )
+        )
+
+        await db.commit()
 
     @staticmethod
     async def delete_many(db: AsyncSession, filter_ids: list[int]) -> None:

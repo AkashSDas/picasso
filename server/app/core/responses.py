@@ -124,3 +124,13 @@ delete_style_filters: Responses = {
     **_forbidden_response,
     **_unauthorized_response,
 }
+
+report_style_filter: Responses = {
+    status.HTTP_200_OK: {
+        "description": "Style filter is reported and banned (if crossed a threshold)",
+        "model": schemas.http.ReportStyleFilter,
+    },
+    **_base_responses,
+    **_bad_request_response,
+    **_unauthorized_response,
+}

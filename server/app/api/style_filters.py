@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, File, Query, UploadFile, status
 from sqlalchemy.exc import SQLAlchemyError
@@ -14,6 +15,8 @@ from app.core.exceptions import (
 from app.utils import FilterUploadResult, filter_storage
 
 router = APIRouter()
+
+MAX_REPORT_COUNT = 25
 
 
 @router.post(
@@ -87,7 +90,34 @@ async def delete_filters(
     await crud.style_filters.delete_many(db, [filter.id for filter in filters])
 
 
-# DELETE
-# BAN
+@router.patch(
+    "/{filter_id}/report",
+    summary="Report a filter and if it's report count is above threshold then ban it",
+    status_code=status.HTTP_200_OK,
+    responses=responses.report_style_filter,
+    response_model=responses.report_style_filter[status.HTTP_200_OK]["model"],
+)
+async def report_style_filter(
+    db: deps.db_dep,
+    filter_id: UUID,
+    query: Annotated[schemas.ReportStyleFilterQuery, Query()],
+) -> schemas.http.ReportStyleFilter:
+    filter_count = await crud.style_filters.get_report_count(db, filter_id)
+
+    if filter_count is None:
+        raise NotFoundError()
+
+    is_banned = filter_count > MAX_REPORT_COUNT
+
+    await crud.style_filters.change_report_count(
+        db,
+        filter_id,
+        is_increment=query.type == "increment",
+        is_banned=is_banned,
+    )
+
+    return schemas.http.ReportStyleFilter(is_banned=is_banned)
+
+
 # GET authors
 # SEARCH

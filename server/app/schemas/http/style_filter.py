@@ -10,3 +10,13 @@ from app.schemas import StyleFilter
 class UploadStyleFiltersOut(BaseModel):
     model_config = ConfigDict(extra="forbid")
     filters: list[StyleFilter] = Field(..., min_length=1)
+
+
+# =============================
+# Report Style Filter
+# =============================
+
+
+class ReportStyleFilter(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    is_banned: bool = False
