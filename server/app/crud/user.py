@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,76 +13,16 @@ from app.db.models import MagicLink, User
 
 class UserCRUD:
     @staticmethod
-    async def check_email_exist(db: AsyncSession, email: str) -> bool:
+    async def exists_by_email(db: AsyncSession, email: str) -> bool:
         stmt = select(1).where(User.email == email).limit(1)
         result = await db.scalar(stmt)
         return result is not None
 
     @staticmethod
-    async def get(db: AsyncSession, email: str) -> User | None:
-        stmt = select(User).where(User.email == email).limit(1)
-        result = await db.execute(stmt)
-        return result.scalar()
-
-    @staticmethod
-    async def get_by_id(db: AsyncSession, id: int) -> User | None:
-        stmt = select(User).where(User.id == id).limit(1)
-        result = await db.execute(stmt)
-        return result.scalar()
-
-    @staticmethod
-    async def get_magic_link_by_hashed_token(
-        db: AsyncSession, token: str
-    ) -> MagicLink | None:
-        unhashed_token = utils.auth.unhash_token(token)
-        fifteen_minutes_ago = datetime.now(UTC) - timedelta(minutes=15)
-
-        result = await db.execute(
-            select(MagicLink)
-            .where(
-                MagicLink.unhashed_token == unhashed_token,
-                MagicLink.expires_at.isnot(None),
-                MagicLink.expires_at >= fifteen_minutes_ago,
-            )
-            .limit(1)
-        )
-
-        magic_link = result.scalar()
-        return magic_link
-
-    @staticmethod
-    async def unset_magic_link(db: AsyncSession, magic_link: MagicLink) -> None:
-        log.info(f"Unset magic link login for user id ({magic_link.user_id})")
-
-        magic_link.unhashed_token = None
-        magic_link.expires_at = None
-
-        db.add(magic_link)
-        await db.commit()
-
-    @staticmethod
-    async def upsert_magic_link(db: AsyncSession, user: User) -> str:
-        """Insert or update magic link record which is linked to user."""
-
-        token, hashed = utils.auth.create_magic_link_token()
-        expires_at = datetime.now(UTC) + timedelta(minutes=15)
-
-        result = await db.execute(
-            select(MagicLink).where(MagicLink.user_id == user.id).limit(1)
-        )
-        magic_link = result.scalar()
-
-        if magic_link is None:
-            # Create a new magic link
-            instance = MagicLink(unhashed_token=token, expires_at=expires_at, user=user)
-            db.add(instance)
-            await db.commit()
-        else:
-            magic_link.expires_at = expires_at
-            magic_link.unhashed_token = token
-            await db.commit()
-
-        return hashed
+    async def exists_by_username(db: AsyncSession, username: str) -> bool:
+        stmt = select(1).where(User.username == username).limit(1)
+        result = await db.scalar(stmt)
+        return result is not None
 
     @staticmethod
     async def create(db: AsyncSession, user: User) -> tuple[User, str]:
@@ -100,11 +41,26 @@ class UserCRUD:
         except SQLAlchemyError as e:
             log.error(f"Failed to create user account: {e}")
             await db.rollback()
-            raise InternalServerError()
+            raise InternalServerError() from e
         except Exception as e:
             log.error(f"Failed to create user account: {e}")
             await db.rollback()
-            raise InternalServerError()
+            raise InternalServerError() from e
+
+    @staticmethod
+    async def get_by_public_user_id(
+        db: AsyncSession,
+        public_user_id: str | UUID,
+    ) -> User | None:
+        stmt = select(User).where(User.public_user_id == public_user_id).limit(1)
+        result = await db.execute(stmt)
+        return result.scalar()
+
+    @staticmethod
+    async def get_by_email(db: AsyncSession, email: str) -> User | None:
+        stmt = select(User).where(User.email == email).limit(1)
+        result = await db.execute(stmt)
+        return result.scalar()
 
 
 user = UserCRUD()
