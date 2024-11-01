@@ -12,7 +12,7 @@ from .enums import CloudinaryFolderPath
 
 
 @dataclass
-class UploadResult:
+class FilterUploadResult:
     img_id: str
     base_img_url: str
     blur_img_url: str
@@ -20,10 +20,12 @@ class UploadResult:
 
 
 class FilterStorage:
+    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB cap for each image
+
     def __init__(self) -> None:
         self.config = cloudinary.config(secure=True)
 
-    def upload(self, file: UploadFile) -> UploadResult | None:
+    def upload(self, file: UploadFile) -> FilterUploadResult | None:
         try:
             img = upload_image(file, folder=CloudinaryFolderPath.STYLE_FILTER.value)
 
@@ -31,15 +33,14 @@ class FilterStorage:
             img_url = img.url
 
             if not isinstance(img_id, str):
-                log.error(
-                    f"Failed to upload image: public_id({img_id}), url({img_url})",
-                )
+                log.error(f"Failed to upload img: public_id {img_id}, url {img_url}")
                 return None
 
             blur_img_url = self.get_blur_image(img_id)
             small_img_url = self.get_small_image(img_id)
 
-            return UploadResult(img_id, img_url, blur_img_url, small_img_url)
+            log.info("Image uploaded")
+            return FilterUploadResult(img_id, img_url, blur_img_url, small_img_url)
         except Exception as e:
             log.error(f"Failed to upload image: {e}")
             return None
@@ -62,6 +63,10 @@ class FilterStorage:
         )
 
         return img_url
+
+    @staticmethod
+    def to_mb(size: int) -> float:
+        return size / (1024 * 1024)
 
 
 filter_storage = FilterStorage()
