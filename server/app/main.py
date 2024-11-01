@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api import auth_router, example_router
 from app.core import settings
 from app.core.exceptions import BadRequestError
+from app.utils.enums import HttpHeader
 
 app = FastAPI(
     title=settings.app_title,
@@ -26,40 +27,30 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Middlewares
 # =========================
 
-# Correlation ID Middleware: Adds unique request ID (X-Request-ID) to each
-# request for tracking
-app.add_middleware(CorrelationIdMiddleware, header_name="X-Request-ID")
+# This middleware will add unique request ID to each request for tracking
+app.add_middleware(CorrelationIdMiddleware, header_name=HttpHeader.REQUEST_ID.value)
 
-# CORS Middleware: Allows cross-origin requests, useful for API integrations and
-# frontend apps
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.cors_origins],
     allow_credentials=True,  # Allow credentials (cookies, etc.)
-    allow_methods=["*"],
-    allow_headers=["X-Request-ID"],  # Allowed request headers
-    # Expose the headers you need
-    expose_headers=["X-Request-ID", "X-Process-Time"],
 )
 
-# GZip Middleware: Compresses response data for faster transmission and smaller
-# payloads. Compress responses larger than 500 bytes
-app.add_middleware(GZipMiddleware, minimum_size=500)
+# Compresses response data for faster transmission and smaller payloads
+app.add_middleware(GZipMiddleware, minimum_size=500)  # 500 bytes
 
 if settings.environment == "production":
-    # HTTPS Redirect Middleware: Automatically redirects HTTP requests to HTTPS
+    # Automatically redirect HTTP requests to HTTPS
     app.add_middleware(HTTPSRedirectMiddleware)
 
-    # Trusted Host Middleware: Prevents Host Header attacks by validating
-    # allowed hosts
+    # Prevents host header attacks by validating allowed hosts
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=[str(host) for host in settings.trusted_hosts],
     )
 
 
-# Custom Middleware for adding security headers (Optional, useful for
-# additional security)
+# Custom middleware for adding security headers (optional)
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
@@ -81,7 +72,7 @@ async def add_process_time_header(req: Request, call_next) -> Response:
     start_time = time.time()
     response = await call_next(req)
     process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
+    response.headers[HttpHeader.PROCESS_TIME.value] = str(process_time)
     return response
 
 
@@ -101,7 +92,7 @@ async def bad_request_err_handler(_: Request, e: BadRequestError) -> JSONRespons
 
 @app.exception_handler(RequestValidationError)
 async def validation_err_handler(_: Request, e: RequestValidationError) -> JSONResponse:
-    content = {"detail": "Validation error", "errors": e.errors()}
+    content = {"detail": "Validation Error", "errors": e.errors()}
     return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=content)
 
 
