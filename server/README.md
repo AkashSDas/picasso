@@ -1,4 +1,4 @@
-# Picassco Backend
+# Picasso Backend
 
 ## Getting Started
 
