@@ -25,7 +25,7 @@ class NonUpdateableColumnError(AttributeError):
         if message is None:
             self.message = (
                 f"Cannot update column {column} on model {cls} from "
-                f"{old_value} to {new_value}: column is non-updateable."
+                f"{old_value} to {new_value}: column is non-updateable"
             )
 
 

@@ -8,15 +8,13 @@ LoggerLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class AuthSettings(BaseSettings):
-    auth_google_oauth_client_id: str
-    auth_google_oauth_client_secret: str
-
-    auth_jwt_secret_key: str
     auth_jwt_algorithm: str = "HS256"
+    auth_access_token_secret_key: str
+    auth_refresh_token_secret_key: str
     auth_access_token_expire: int = 5
     auth_refresh_token_expire: int = 1
 
-    auth_magic_token_hash_key: bytes
+    auth_crypto_hash_key: bytes
 
 
 class DatabaseSettings(BaseSettings):
@@ -98,7 +96,12 @@ class LoggerSettings(BaseSettings):
     logger_date_format: str = "%d-%m-%YT%H:%M:%SZ"
 
     logger_file_path: str = "./logs/app.log"
+    logger_file_max_size: int = 5 * 1024 * 1024  # 5 MB per log file
+    logger_file_backup_count: int = 3  # Keep 3 backup files
+
     logger_error_file_path: str = "./logs/error.log"
+    logger_error_file_max_size: int = 5 * 1024 * 1024  # 5 MB per log file
+    logger_error_file_backup_count: int = 3  # Keep 3 backup files
 
 
 class Settings(AuthSettings, DatabaseSettings, EmailSettings, LoggerSettings):
@@ -137,11 +140,11 @@ class Settings(AuthSettings, DatabaseSettings, EmailSettings, LoggerSettings):
         After the model is initialized, check if debug mode is enabled.
         If so, set the logger level to DEBUG for more detailed logging.
         """
+
         if self.debug:
             self.logger_level = "DEBUG"
         return self
 
 
-# Instantiate the settings object, loading from environment variables
-# and defaults.
+# Instantiate the settings object, loading from environment variables and defaults.
 settings = Settings()  # type: ignore[call-arg]

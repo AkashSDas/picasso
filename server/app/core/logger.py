@@ -50,8 +50,8 @@ def create_app_logger() -> logging.Logger:
 
     file_handler = RotatingFileHandler(
         filename=settings.logger_file_path,
-        maxBytes=5 * 1024 * 1024,  # 5 MB per log file
-        backupCount=3,  # Keep 3 backup files
+        maxBytes=settings.logger_file_max_size,
+        backupCount=settings.logger_file_backup_count,
     )
     file_handler.setFormatter(formatter)
 
@@ -66,8 +66,8 @@ def create_app_logger() -> logging.Logger:
 
     error_file_handler = RotatingFileHandler(
         filename=settings.logger_error_file_path,
-        maxBytes=5 * 1024 * 1024,  # 5 MB per log file
-        backupCount=3,  # Keep 3 backup files
+        maxBytes=settings.logger_error_file_max_size,
+        backupCount=settings.logger_error_file_backup_count,
     )
     error_file_handler.setFormatter(formatter)
 
