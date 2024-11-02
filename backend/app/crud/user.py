@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,6 +61,23 @@ class UserCRUD:
         stmt = select(User).where(User.email == email).limit(1)
         result = await db.execute(stmt)
         return result.scalar()
+
+    @staticmethod
+    async def update_banned_post_ids(
+        db: AsyncSession,
+        user_id: int,
+        reported_filter_ids: list[int],
+        *,
+        commit: bool = True,
+    ) -> None:
+        await db.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(reported_filter_ids=reported_filter_ids)
+        )
+
+        if commit:
+            await db.commit()
 
 
 user = UserCRUD()

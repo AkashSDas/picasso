@@ -42,6 +42,21 @@ class StyleFilterCRUD:
         return list(result.scalars())
 
     @staticmethod
+    async def get_by_id(db: AsyncSession, filter_id: UUID) -> StyleFilter | None:
+        result = await db.execute(
+            select(StyleFilter)
+            .where(StyleFilter.public_filter_id == filter_id)
+            .limit(1)
+        )
+
+        row = result.first()
+
+        if row is None:
+            return None
+        else:
+            return row[0]
+
+    @staticmethod
     async def get_many(
         db: AsyncSession,
         *,
@@ -83,6 +98,8 @@ class StyleFilterCRUD:
         filter_public_id: UUID,
         is_increment: bool,
         is_banned: bool,
+        *,
+        commit: bool = True,
     ) -> None:
         await db.execute(
             update(StyleFilter)
@@ -96,7 +113,8 @@ class StyleFilterCRUD:
             )
         )
 
-        await db.commit()
+        if commit:
+            await db.commit()
 
     @staticmethod
     async def delete_many(db: AsyncSession, filter_ids: list[int]) -> None:
