@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class StyleFilterDeleteQuery(BaseModel):
-    model_config = {"extra": "forbid"}
-    filter_ids: list[UUID] = Field(..., alias="filterIds", min_length=1)
+    model_config = {"extra": "forbid", "populate_by_name": True}
+    filter_ids: list[UUID] = Field(..., alias="filterId", min_length=1)
 
 
 class ReportStyleFilterQuery(BaseModel):
