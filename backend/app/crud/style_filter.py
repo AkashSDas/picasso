@@ -55,6 +55,9 @@ class StyleFilterCRUD:
         if author_id is not None:
             stmt = stmt.join(User).where(User.public_user_id == author_id)
             total_stmt = total_stmt.join(User).where(User.public_user_id == author_id)
+        else:
+            stmt = stmt.where(StyleFilter.is_banned.is_not(True))
+            total_stmt = total_stmt.where(StyleFilter.is_banned.is_not(True))
 
         result = await db.execute(
             stmt.limit(limit).offset(offset).order_by(desc(StyleFilter.created_at))
