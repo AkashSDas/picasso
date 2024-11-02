@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING
+from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-if TYPE_CHECKING:
-    from app.schemas import StyleFilter
+from app.schemas import StyleFilter
 
 # =============================
 # Upload Style Filters
@@ -12,7 +11,7 @@ if TYPE_CHECKING:
 
 class UploadStyleFiltersOut(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    filters: list["StyleFilter"] = Field(..., min_length=1)
+    filters: list[StyleFilter] = Field(..., min_length=1)
 
 
 # =============================

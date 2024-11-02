@@ -19,3 +19,5 @@ from .style_filter import (
     ReportStyleFilterOut,
     UploadStyleFiltersOut,
 )
+
+UploadStyleFiltersOut.model_rebuild()
