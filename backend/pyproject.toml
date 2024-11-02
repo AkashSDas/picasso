@@ -22,6 +22,7 @@ fastapi-mail = { extras = ["aioredis"], version = "^1.4.1" }
 cryptography = "^43.0.1"
 cloudinary = "^1.41.0"
 python-multipart = "^0.0.17"
+filetype = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
