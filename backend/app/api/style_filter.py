@@ -51,7 +51,7 @@ async def upload_filters(
             results.append(result)
 
     try:
-        filters = await crud.style_filters.create_many(db, results, user.id)
+        filters = await crud.style_filter.create_many(db, results, user.id)
         return schemas.http.UploadStyleFiltersOut(
             filters=[filter.to_schema() for filter in filters]
         )
@@ -74,7 +74,7 @@ async def delete_filters(
     user: deps.current_user_dep,
     query: Annotated[schemas.StyleFilterDeleteQuery, Query()],
 ) -> None:
-    filters = await crud.style_filters.get_many_by_ids(db, query.filter_ids)
+    filters = await crud.style_filter.get_many_by_ids(db, query.filter_ids)
 
     if len(filters) == 0:
         raise NotFoundError()
@@ -87,7 +87,7 @@ async def delete_filters(
         [filter.img_id for filter in filters if filter.img_id is not None]
     )
 
-    await crud.style_filters.delete_many(db, [filter.id for filter in filters])
+    await crud.style_filter.delete_many(db, [filter.id for filter in filters])
 
 
 @router.patch(
@@ -102,14 +102,14 @@ async def report_style_filter(
     filter_id: UUID,
     query: Annotated[schemas.ReportStyleFilterQuery, Query()],
 ) -> schemas.http.ReportStyleFilterOut:
-    filter_count = await crud.style_filters.get_report_count(db, filter_id)
+    filter_count = await crud.style_filter.get_report_count(db, filter_id)
 
     if filter_count is None:
         raise NotFoundError()
 
     is_banned = filter_count > MAX_REPORT_COUNT
 
-    await crud.style_filters.change_report_count(
+    await crud.style_filter.change_report_count(
         db,
         filter_id,
         is_increment=query.type == "increment",
@@ -130,7 +130,7 @@ async def get_style_filters(
     db: deps.db_dep,
     query: Annotated[schemas.GetStyleFiltersQuery, Query()],
 ) -> schemas.http.GetStyleFiltersOut:
-    filters, total = await crud.style_filters.get_many(
+    filters, total = await crud.style_filter.get_many(
         db,
         author_id=query.author_id,
         limit=query.limit,

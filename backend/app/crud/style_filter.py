@@ -102,4 +102,4 @@ class StyleFilterCRUD:
         )
 
 
-style_filters = StyleFilterCRUD()
+style_filter = StyleFilterCRUD()
