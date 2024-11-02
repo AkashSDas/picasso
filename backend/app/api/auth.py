@@ -37,7 +37,7 @@ async def email_signup(
     if username_exists:
         raise BadRequestError("Username already used")
 
-    user = User.from_schema(body)
+    user = User.from_schema(body, f"{req.base_url}static/images/default-profile.jpg")
     user, token = await crud.user.create(db, user)
     log.info(f"Created account for email ({user.email}) with ID {user.id}")
 

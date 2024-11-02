@@ -88,11 +88,15 @@ class User(BaseDbModel):
         return f"User({self.id}, {self.public_user_id}, {self.username})"
 
     @classmethod
-    def from_schema(cls, schema: schemas.http.EmailSignupIn) -> "User":
+    def from_schema(
+        cls,
+        schema: schemas.http.EmailSignupIn,
+        profile_pic_url: str,
+    ) -> "User":
         return cls(
             email=schema.email,
             username=schema.username,
-            profile_pic_url="/static/images/default-profile.jpg",
+            profile_pic_url=profile_pic_url,
         )
 
     def to_schema(self) -> schemas.User:
