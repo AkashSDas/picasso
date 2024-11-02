@@ -84,6 +84,23 @@ class ConflictError(HttpError):
         )
 
 
+class EntityTooLargeError(HttpError):
+    def __init__(
+        self,
+        message: str = "Entity Too Large",
+        reason: str = "Entity Too Large",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
+        )
+
+
 class ForbiddenError(HttpError):
     def __init__(
         self,
@@ -145,6 +162,23 @@ class UnauthorizedError(HttpError):
     ) -> None:
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
+            message=message,
+            reason=reason,
+            context=context,
+            headers=headers,
+        )
+
+
+class UnsupportedMediaTypeError(HttpError):
+    def __init__(
+        self,
+        message: str = "Unsupported Media Type",
+        reason: str = "Unsupported Media Type",
+        context: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             message=message,
             reason=reason,
             context=context,

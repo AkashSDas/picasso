@@ -29,6 +29,10 @@ class ConflictErrorResponse(ErrorResponse):
     pass
 
 
+class EntityTooLargeErrorResponse(ErrorResponse):
+    pass
+
+
 class ForbiddenErrorResponse(ErrorResponse):
     pass
 
@@ -42,4 +46,8 @@ class NotFoundErrorResponse(ErrorResponse):
 
 
 class UnauthorizedErrorResponse(ErrorResponse):
+    pass
+
+
+class UnsupportedMediaTypeErrorResponse(ErrorResponse):
     pass

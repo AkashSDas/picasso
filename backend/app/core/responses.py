@@ -45,6 +45,21 @@ _forbidden_response: Responses = {
     }
 }
 
+_entity_too_large: Responses = {
+    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: {
+        "description": "Entity Too Large",
+        "model": schemas.http.EntityTooLargeErrorResponse,
+    }
+}
+
+
+_unsupported_media_type_response: Responses = {
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: {
+        "description": "Unsupported Media Type",
+        "model": schemas.http.UnsupportedMediaTypeErrorResponse,
+    }
+}
+
 
 # =======================
 # Auth
@@ -114,6 +129,8 @@ upload_style_filters: Responses = {
     **_base_responses,
     **_bad_request_response,
     **_unauthorized_response,
+    **_entity_too_large,
+    **_unsupported_media_type_response,
 }
 
 

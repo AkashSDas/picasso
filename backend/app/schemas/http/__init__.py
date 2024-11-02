@@ -3,6 +3,8 @@ from .base import (  # isort: split
     ConflictErrorResponse,
     InternalServerErrorResponse,
     NotFoundErrorResponse,
+    EntityTooLargeErrorResponse,
+    UnsupportedMediaTypeErrorResponse,
     ForbiddenErrorResponse,
     UnauthorizedErrorResponse,
 )
