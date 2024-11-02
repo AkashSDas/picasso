@@ -24,6 +24,15 @@ app = FastAPI(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# =========================
+# Routers
+# =========================
+
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(style_filer_router, prefix="/api/filter", tags=["Style Filter"])
+
+
 # =========================
 # Middlewares
 # =========================
@@ -35,6 +44,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.cors_origins],
     allow_credentials=True,  # Allow credentials (cookies, etc.)
+    expose_headers=[HttpHeader.REQUEST_ID.value, HttpHeader.PROCESS_TIME.value],
 )
 
 # Compresses response data for faster transmission and smaller payloads
@@ -126,14 +136,6 @@ async def global_err_handler(_: Request, e: Exception) -> JSONResponse:
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=content,
     )
-
-
-# =========================
-# Routers
-# =========================
-
-app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(style_filer_router, prefix="/api/filter", tags=["Style Filter"])
 
 
 @app.get("/", include_in_schema=False)

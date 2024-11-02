@@ -17,6 +17,16 @@ class AuthSettings(BaseSettings):
     auth_crypto_hash_key: bytes
 
 
+class CloudinarySettings(BaseSettings):
+    cloudinary_cloud_name: str
+    cloudinary_cloud_key: str
+    cloudinary_cloud_secret: str
+
+    @property
+    def cloudinary_url(self) -> str:
+        return f"cloudinary://{self.cloudinary_cloud_key}:{self.cloudinary_cloud_secret}@{self.cloudinary_cloud_name}"
+
+
 class DatabaseSettings(BaseSettings):
     """
     This class defines the database configuration settings.
@@ -104,7 +114,13 @@ class LoggerSettings(BaseSettings):
     logger_error_file_backup_count: int = 3  # Keep 3 backup files
 
 
-class Settings(AuthSettings, DatabaseSettings, EmailSettings, LoggerSettings):
+class Settings(
+    AuthSettings,
+    CloudinarySettings,
+    DatabaseSettings,
+    EmailSettings,
+    LoggerSettings,
+):
     """
     This is the main settings class that aggregates database, logger, and other
     settings, and includes application-specific settings like title, version,

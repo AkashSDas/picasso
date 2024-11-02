@@ -31,7 +31,7 @@ class StyleFilter(BaseDbModel):
     # function or sequence. This will be public facing filter id
     public_filter_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
-        default=uuid4(),
+        default=uuid4,
         unique=True,
         index=True,
     )
@@ -42,7 +42,7 @@ class StyleFilter(BaseDbModel):
 
     # ID provided by the storage service, which can be used to delete it. In case
     # we give img url, like paste it, that time we won't have img id and hence optional
-    img_id: Mapped[str | None] = mapped_column(String(32))
+    img_id: Mapped[str | None] = mapped_column(String(255))
 
     # Is the image uploaded by an external user or the platform itself
     is_official: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -117,7 +117,7 @@ class StyleFilter(BaseDbModel):
         return schemas.StyleFilter.model_validate(
             {
                 "filter_id": self.public_filter_id,
-                "author_id": self.author_id,
+                "author_id": self.author.public_user_id,
                 "img_id": self.img_id,
                 "img_url": self.base_img_url,
                 "blur_img_url": self.blur_img_url,

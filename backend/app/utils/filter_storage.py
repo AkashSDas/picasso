@@ -6,7 +6,7 @@ from cloudinary.uploader import upload_image
 from cloudinary.utils import cloudinary_url
 from fastapi import UploadFile
 
-from app.core import log
+from app.core import log, settings
 
 from .enums import CloudinaryFolderPath
 
@@ -23,11 +23,18 @@ class FilterStorage:
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB cap for each image
 
     def __init__(self) -> None:
-        self.config = cloudinary.config(secure=True)
+        self.config = cloudinary.config(
+            secure=True,
+            cloud_name=settings.cloudinary_cloud_name,
+            api_key=settings.cloudinary_cloud_key,
+            api_secret=settings.cloudinary_cloud_secret,
+        )
 
     def upload(self, file: UploadFile) -> FilterUploadResult | None:
         try:
-            img = upload_image(file, folder=CloudinaryFolderPath.STYLE_FILTER.value)
+            img = upload_image(
+                file.file, folder=CloudinaryFolderPath.STYLE_FILTER.value
+            )
 
             img_id = img.public_id
             img_url = img.url

@@ -30,6 +30,8 @@ async def upload_filters(
     user: deps.current_user_dep,
     files: list[UploadFile] = File(..., description="Filters to upload"),
 ) -> schemas.http.UploadStyleFiltersOut:
+    log.info(f"Files {len(files)}: {files}")
+
     for file in files:
         if file.size and file.size > filter_storage.MAX_FILE_SIZE:
             max_file_size_in_mb = filter_storage.to_mb(filter_storage.MAX_FILE_SIZE)
