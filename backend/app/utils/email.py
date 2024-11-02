@@ -21,11 +21,27 @@ class EmailManager:
         try:
             log.info(f"Sending magic link email to {email}. Token: {token}")
 
-            magic_link = f"{base_url}api/auth/verify?token={token}"
+            magic_link = f"{base_url}api/auth/login/email/{token}"
+
+            html_template = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Magic Login Link</title>
+            </head>
+            <body>
+                <p>Hello,</p>
+                <p>Click the link below to log in: </p>
+                <a href="{magic_link}">Login Link</a>
+                <p>If you did not request this link, please ignore this email.</p>
+            </body>
+            </html>
+            """
+
             msg = MessageSchema(
                 subject="Your Magic Login Link",
                 recipients=[email],
-                body=f"Click the link to login: {magic_link}",
+                body=html_template,
                 subtype=MessageType.html,
             )
 
