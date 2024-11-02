@@ -73,6 +73,11 @@ async def email_login(
 
     token = await crud.magic_link.upsert_magic_link(db, user)
 
+    if settings.environment == "development":
+        return schemas.http.EmailLoginOut(
+            message=(f"Magic link login sent to your email. Login token: {token}"),
+        )
+
     background_tasks.add_task(
         utils.email.send_magic_link,
         cast(EmailStr, user.email),
