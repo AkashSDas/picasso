@@ -22,6 +22,21 @@ class FilterUploadResult:
 class FilterStorage:
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB cap for each image
 
+    SUPPORTED_FILE_TYPE = [
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/heic",
+        "image/heif",
+        "image/heics",
+        "png",
+        "jpeg",
+        "jpg",
+        "heic",
+        "heif",
+        "heics",
+    ]
+
     def __init__(self) -> None:
         self.config = cloudinary.config(
             secure=True,
@@ -52,8 +67,9 @@ class FilterStorage:
             log.error(f"Failed to upload image: {e}")
             return None
 
-    def delete(self, img_ids: list[str]) -> None:
-        cloudinary.api.delete_resources(img_ids)
+    def delete(self, img_ids: set[str]) -> None:
+        log.info(img_ids)
+        cloudinary.api.delete_resources(list(img_ids))
 
     def get_blur_image(self, img_public_id: str) -> str:
         img_url, _opts = cloudinary_url(
