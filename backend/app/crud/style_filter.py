@@ -50,7 +50,7 @@ class StyleFilterCRUD:
         offset: int = 0,
     ) -> tuple[list[StyleFilter], int]:
         stmt = select(StyleFilter)
-        total_stmt = select(func.count())
+        total_stmt = select(func.count()).select_from(StyleFilter)
 
         if author_id is not None:
             stmt = stmt.join(User).where(User.public_user_id == author_id)

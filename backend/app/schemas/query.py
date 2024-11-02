@@ -15,7 +15,7 @@ class ReportStyleFilterQuery(BaseModel):
 
 
 class GetStyleFiltersQuery(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = {"extra": "forbid", "populate_by_name": True}
     limit: int = Field(20, ge=0, le=100)
     offset: int = Field(0, ge=0)
-    author_id: UUID | None = None
+    author_id: UUID | None = Field(None, alias="authorId")
