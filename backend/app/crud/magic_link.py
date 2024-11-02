@@ -24,12 +24,18 @@ class MagicLinkCRUD:
             .where(
                 MagicLink.unhashed_token == unhashed_token,
                 MagicLink.expires_at.isnot(None),
-                MagicLink.expires_at <= now,
+                MagicLink.expires_at >= now,
             )
             .limit(1)
         )
 
-        return result.scalar()
+        row = result.first()
+        if row:
+            magic_link: MagicLink = row[0]
+            user_id: UUID = row[1]
+            return magic_link, user_id
+
+        return None
 
     @staticmethod
     async def unset_magic_link(db: AsyncSession, magic_link: MagicLink) -> None:
