@@ -1,4 +1,0 @@
-# client/.husky/pre-push
-cd ./client
-pnpm run test --watchAll=false
-pnpm run build

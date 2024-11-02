@@ -1,0 +1,85 @@
+name: Frontend CI
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "frontend/**"
+
+jobs:
+    build:
+        name: Build
+        defaults:
+            run:
+                working-directory: frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v3
+              with:
+                  version: 8.14.3
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
+                  cache-dependency-path: "frontend/pnpm-lock.yaml"
+            - run: pnpm install
+            - run: pnpm build
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: next-build
+                  path: frontend/.next
+
+    test:
+        name: Test
+        defaults:
+            run:
+                working-directory: frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v3
+              with:
+                  version: 8.14.3
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
+                  cache-dependency-path: "frontend/pnpm-lock.yaml"
+            - run: pnpm install
+            - run: pnpm test
+            - run: pnpm test:cov
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: coverage-report
+                  path: frontend/coverage
+
+    # # Currently the test url is local host. Here we can pass TEST URL from env.
+    # # But its not setup.
+    # end-to-end-test:
+    #     name: End-to-End Test
+    #     defaults:
+    #         run:
+    #             working-directory: frontend
+    #     timeout-minutes: 60
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - uses: actions/checkout@v4
+    #         - uses: pnpm/action-setup@v3
+    #           with:
+    #               version: 8.14.3
+    #         - uses: actions/setup-node@v4
+    #           with:
+    #               node-version: "20"
+    #               cache: "pnpm"
+    #               cache-dependency-path: "frontend/pnpm-lock.yaml"
+    #         - run: pnpm install
+    #         - run: pnpm exec playwright install --with-deps
+    #         - run: pnpm exec playwright test
+    #         - uses: actions/upload-artifact@v4
+    #           if: always()
+    #           with:
+    #               name: playwright-report
+    #               path: frontend/playwright-report
+    #               retention-days: 30

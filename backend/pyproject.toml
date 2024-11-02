@@ -1,0 +1,86 @@
+[tool.poetry]
+name = "picasso_backend"
+version = "0.1.0"
+description = ""
+authors = ["AkashSDas <aakashdas368@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.34" }
+alembic = "^1.13.2"
+uvicorn = "^0.30.6"
+asyncpg = "^0.29.0"
+pydantic-settings = "^2.4.0"
+asgi-correlation-id = "^4.3.3"
+httpx = "^0.27.2"
+tenacity = "^9.0.0"
+pydantic = { extras = ["email"], version = "^2.9.1" }
+python-jose = "^3.3.0"
+fastapi-mail = { extras = ["aioredis"], version = "^1.4.1" }
+cryptography = "^43.0.1"
+cloudinary = "^1.41.0"
+python-multipart = "^0.0.17"
+filetype = "^1.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pre-commit = "^3.8.0"
+ruff = "^0.6.4"
+isort = "^5.13.2"
+black = "^24.8.0"
+mypy = "^1.11.2"
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+include_trailing_comma = true
+force_grid_wrap = 0
+known_first_party = ["app"]
+known_third_party = ["alembic"]
+
+[tool.ruff]
+# Enable pycodestyle ("E"), Pyflakes ("F"), and pep8-naming ("N"), and Pylint ("PL") codes
+select = ["E", "F", "N", "PL"]
+ignore = []
+line-length = 88
+# Allow unused variables when their name starts with an underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py312"
+
+[tool.ruff.pylint]
+max-args = 8 # Max num of arguments allowed in a function/method definition
+
+[tool.ruff.per-file-ignores]
+# Ignore Pyflakes "imported but unused" errors in the following files:
+"app/api/__init__.py" = ["F401"]
+"app/core/__init__.py" = ["F401"]
+"app/deps/__init__.py" = ["F401"]
+"app/db/models/__init__.py" = ["F401"]
+"app/schemas/__init__.py" = ["F401"]
+"app/schemas/http/__init__.py" = ["F401"]
+"app/crud/__init__.py" = ["F401"]
+"app/utils/__init__.py" = ["F401"]
+
+[tool.mypy]
+disallow_untyped_defs = true
+show_column_numbers = true   # show column numbers in error messages
+show_error_context = true    # prefixes each error with the context
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+# Ignore missing imports from the following modules
+ignore_missing_imports = true
+module = [
+    "authlib.*", # Authlib package isn't typed and doesn't have package stubs
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

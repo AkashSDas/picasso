@@ -1,0 +1,48 @@
+{
+    "root": true,
+    "env": { "browser": true, "es2020": true },
+    "extends": [
+        "next/core-web-vitals",
+        "next/typescript",
+        "eslint:recommended",
+        "prettier",
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:@tanstack/eslint-plugin-query/recommended"
+    ],
+    "ignorePatterns": [".next", ".eslintrc.json"],
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint",
+        "react",
+        "prettier",
+        "react-refresh",
+        "react-hooks",
+        "@tanstack/query",
+        "react-refresh"
+    ],
+    "rules": {
+        "react-refresh/only-export-components": [
+            "warn",
+            { "allowConstantExport": true }
+        ],
+        "@typescript-eslint/no-unused-vars": "off",
+
+        "@tanstack/query/exhaustive-deps": "error",
+        "@tanstack/query/no-deprecated-options": "off",
+        "@tanstack/query/prefer-query-object-syntax": "off",
+        "@tanstack/query/stable-query-client": "error",
+
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+
+        "prettier/prettier": "warn",
+
+        // Suppress errors for missing 'import React' in files
+        // NextJS automatically adds it
+        "react/react-in-jsx-scope": "off",
+        // Allow JSX syntax in js files (for next.js project)
+        "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx"] }]
+    }
+}
