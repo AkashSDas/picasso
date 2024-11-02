@@ -11,7 +11,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import auth_router
+from app.api import auth_router, style_filer_router
 from app.core import log, settings
 from app.core.exceptions import HttpError
 from app.utils.enums import HttpHeader
@@ -133,6 +133,7 @@ async def global_err_handler(_: Request, e: Exception) -> JSONResponse:
 # =========================
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(style_filer_router, prefix="/api/filter", tags=["Style Filter"])
 
 
 @app.get("/", include_in_schema=False)
