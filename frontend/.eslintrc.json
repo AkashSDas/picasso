@@ -30,8 +30,8 @@
         "@typescript-eslint/no-unused-vars": "off",
 
         "@tanstack/query/exhaustive-deps": "error",
-        "@tanstack/query/no-deprecated-options": "error",
-        "@tanstack/query/prefer-query-object-syntax": "error",
+        "@tanstack/query/no-deprecated-options": "off",
+        "@tanstack/query/prefer-query-object-syntax": "off",
         "@tanstack/query/stable-query-client": "error",
 
         "react-hooks/rules-of-hooks": "error",
