@@ -1,6 +1,0 @@
-.next
-.cache
-package-lock.json
-public
-node_modules
-pnpm-lock.yaml

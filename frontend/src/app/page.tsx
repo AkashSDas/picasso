@@ -1,7 +1,7 @@
-export default function HomePage() {
+export default function HomePage(): React.JSX.Element {
     return (
         <main>
-            <h1>Picasso</h1>
+            <h1 className="font-head">Picasso</h1>
         </main>
     );
 }
