@@ -9,10 +9,10 @@
 
     body {
         background-color: #1e1a1c;
-        @apply font-mono text-gray-100;
+        @apply font-body text-gray-100;
     }
 
     input {
-        @apply font-mono;
+        @apply font-body;
     }
 }

@@ -5,7 +5,7 @@ import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from "reac
 import { cn } from "@/utils/styles";
 
 const variants = cva(
-    "text-sm font-head leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+    "text-sm font-body font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 );
 
 type Ref = ElementRef<typeof LabelPrimitive.Root>;
