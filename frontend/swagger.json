@@ -1,0 +1,1069 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Picasso",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/auth/signup/email": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Signup using email and username. Both of them should be unique. This will send magic link for login on the registered email address",
+                "operationId": "email_signup_api_auth_signup_email_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailSignupIn"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailSignupOut"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "User account created and magic link login sent to email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailSignupOut"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Username or email already taken",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConflictErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login/email": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Login using email. This will send magic send magic link for login on the registered email address",
+                "operationId": "email_login_api_auth_login_email_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailLoginIn"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Magic link login sent to email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailLoginOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login/email/{token}": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "Complete magic link login and then set refresh token and sending access token",
+                "operationId": "complete_email_login_api_auth_login_email__token__get",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Magic link login sent to email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompleteEmailLoginOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "Refresh access token",
+                "operationId": "refresh_access_token_api_auth_refresh_get",
+                "responses": {
+                    "200": {
+                        "description": "Refresh access token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefreshAccessTokenOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "Logout user",
+                "operationId": "logout_user_api_auth_logout_get",
+                "responses": {
+                    "204": {
+                        "description": "User logged out"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/filter": {
+            "post": {
+                "tags": ["Style Filter"],
+                "summary": "Upload filters",
+                "operationId": "upload_filters_api_filter_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_upload_filters_api_filter_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UploadStyleFiltersOut"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Style filters uploaded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UploadStyleFiltersOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Entity Too Large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EntityTooLargeErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnsupportedMediaTypeErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Style Filter"],
+                "summary": "Delete multiple style filters",
+                "operationId": "delete_filters_api_filter_delete",
+                "parameters": [
+                    {
+                        "name": "filterId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "minItems": 1,
+                            "title": "Filterid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Style filters deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ForbiddenErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": ["Style Filter"],
+                "summary": "Get style filters",
+                "operationId": "get_style_filters_api_filter_get",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 0,
+                            "default": 20,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        }
+                    },
+                    {
+                        "name": "authorId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get style filters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetStyleFiltersOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/filter/{filter_id}/report": {
+            "patch": {
+                "tags": ["Style Filter"],
+                "summary": "Report a filter and if it's report count is above threshold then ban it",
+                "operationId": "report_style_filter_api_filter__filter_id__report_patch",
+                "parameters": [
+                    {
+                        "name": "filter_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Filter Id"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "enum": ["increment", "decrement"],
+                            "type": "string",
+                            "title": "Type"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Style filter is reported and banned (if crossed a threshold)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportStyleFilterOut"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BadRequestErrorResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/PydanticErrorResponse"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                ],
+                "title": "BadRequestErrorResponse"
+            },
+            "Body_upload_filters_api_filter_post": {
+                "properties": {
+                    "files": {
+                        "items": {
+                            "type": "string",
+                            "format": "binary"
+                        },
+                        "type": "array",
+                        "title": "Files",
+                        "description": "Filters to upload"
+                    }
+                },
+                "type": "object",
+                "required": ["files"],
+                "title": "Body_upload_filters_api_filter_post"
+            },
+            "CompleteEmailLoginOut": {
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "title": "Accesstoken"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["accessToken", "user"],
+                "title": "CompleteEmailLoginOut"
+            },
+            "ConflictErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "ConflictErrorResponse"
+            },
+            "EmailLoginIn": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["email"],
+                "title": "EmailLoginIn"
+            },
+            "EmailLoginOut": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["message"],
+                "title": "EmailLoginOut"
+            },
+            "EmailSignupIn": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "username": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 3,
+                        "title": "Username"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["email", "username"],
+                "title": "EmailSignupIn"
+            },
+            "EmailSignupOut": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["message"],
+                "title": "EmailSignupOut"
+            },
+            "EntityTooLargeErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "EntityTooLargeErrorResponse"
+            },
+            "ErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "ErrorResponse"
+            },
+            "ForbiddenErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "ForbiddenErrorResponse"
+            },
+            "GetStyleFiltersOut": {
+                "properties": {
+                    "filters": {
+                        "items": {
+                            "$ref": "#/components/schemas/StyleFilter"
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Filters"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Total"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["filters", "total"],
+                "title": "GetStyleFiltersOut"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "InternalServerErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "InternalServerErrorResponse"
+            },
+            "PydanticErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "errors": {
+                        "items": {},
+                        "type": "array",
+                        "title": "Errors"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message", "errors"],
+                "title": "PydanticErrorResponse"
+            },
+            "RefreshAccessTokenOut": {
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "title": "Accesstoken"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["accessToken", "user"],
+                "title": "RefreshAccessTokenOut"
+            },
+            "ReportStyleFilterOut": {
+                "properties": {
+                    "is_banned": {
+                        "type": "boolean",
+                        "title": "Is Banned",
+                        "default": false
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "title": "ReportStyleFilterOut"
+            },
+            "StyleFilter": {
+                "properties": {
+                    "filterId": {
+                        "type": "string",
+                        "format": "uuid4",
+                        "title": "Filterid"
+                    },
+                    "authorId": {
+                        "type": "string",
+                        "format": "uuid4",
+                        "title": "Authorid"
+                    },
+                    "imgId": {
+                        "type": "string",
+                        "title": "Imgid"
+                    },
+                    "imgURL": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Imgurl"
+                    },
+                    "blurImgURL": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Blurimgurl"
+                    },
+                    "smallImgURL": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Smallimgurl"
+                    },
+                    "isOfficial": {
+                        "type": "boolean",
+                        "title": "Isofficial"
+                    },
+                    "isBanned": {
+                        "type": "boolean",
+                        "title": "Isbanned"
+                    },
+                    "reportCount": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Reportcount"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                    "filterId",
+                    "authorId",
+                    "imgId",
+                    "imgURL",
+                    "blurImgURL",
+                    "smallImgURL",
+                    "isOfficial",
+                    "isBanned",
+                    "reportCount"
+                ],
+                "title": "StyleFilter"
+            },
+            "UnauthorizedErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "UnauthorizedErrorResponse"
+            },
+            "UnsupportedMediaTypeErrorResponse": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": ["reason", "message"],
+                "title": "UnsupportedMediaTypeErrorResponse"
+            },
+            "UploadStyleFiltersOut": {
+                "properties": {
+                    "filters": {
+                        "items": {
+                            "$ref": "#/components/schemas/StyleFilter"
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Filters"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["filters"],
+                "title": "UploadStyleFiltersOut"
+            },
+            "User": {
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid4",
+                        "title": "Userid"
+                    },
+                    "username": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 3,
+                        "title": "Username"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "profilePicURL": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Profilepicurl"
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["userId", "username", "email", "profilePicURL"],
+                "title": "User"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": ["loc", "msg", "type"],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
