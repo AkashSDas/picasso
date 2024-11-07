@@ -16,7 +16,7 @@ const variants = cva(
             size: {
                 default: "h-9 px-6",
                 icon: "h-9 w-9",
-                lg: "h-12 px-6 md:h-14",
+                lg: "h-10 px-6 text-base",
             },
         },
         defaultVariants: {
