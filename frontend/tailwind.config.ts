@@ -22,7 +22,7 @@ const config: Config = {
             colors: {},
         },
     },
-    plugins: [require("tailwindcss-animate")],
+    plugins: [require("tailwindcss-animate"), require("autoprefixer")],
 };
 
 export default config;
