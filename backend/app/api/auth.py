@@ -45,7 +45,6 @@ async def email_signup(
         utils.email.send_magic_link,
         cast(EmailStr, user.email),
         token,
-        str(req.base_url),
     )
 
     return schemas.http.EmailSignupOut(message="Magic link login sent to your email")
@@ -61,7 +60,6 @@ async def email_signup(
     response_model=responses.email_login[status.HTTP_200_OK]["model"],
 )
 async def email_login(
-    req: Request,
     db: db_dep,
     body: Annotated[schemas.http.EmailLoginIn, Body()],
     background_tasks: BackgroundTasks,
@@ -82,7 +80,6 @@ async def email_login(
         utils.email.send_magic_link,
         cast(EmailStr, user.email),
         token,
-        str(req.base_url),
     )
 
     return schemas.http.EmailLoginOut(message="Magic link login sent to your email")

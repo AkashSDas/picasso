@@ -138,6 +138,8 @@ class Settings(
     app_title: str = "Picasso"
     app_version: str = "0.1.0"
 
+    frontend_url: str = "http://localhost:3000"
+
     # CORS origins, expected to be a JSON-formatted list of URLs
     cors_origins: Json[list[AnyHttpUrl]] = "[]"  # type: ignore[assignment]
 
