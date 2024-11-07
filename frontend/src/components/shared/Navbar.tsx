@@ -1,4 +1,5 @@
 import { MenuIcon } from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/utils/styles";
 
@@ -22,8 +23,13 @@ export function Navbar(): React.JSX.Element {
                     isLoggedIn ? "hidden" : "",
                 )}
             >
-                <Button variant="ghost">Login</Button>
-                <Button variant="brand">signup</Button>
+                <Link href="/login">
+                    <Button variant="ghost">Login</Button>
+                </Link>
+
+                <Link href="/signup">
+                    <Button variant="brand">signup</Button>
+                </Link>
             </div>
         </nav>
     );
