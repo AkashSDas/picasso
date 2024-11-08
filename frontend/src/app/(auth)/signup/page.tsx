@@ -6,6 +6,7 @@ import { signup } from "@/actions/auth";
 import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { Label } from "@/components/shared/Label";
+import { Loader } from "@/components/shared/Loader";
 import { useToast } from "@/hooks/toast";
 import { status } from "@/utils/http";
 
@@ -36,7 +37,6 @@ export default function SignupPage(): React.JSX.Element {
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
-        console.dir({ form });
         await executeAsync(form);
     }
 
@@ -46,9 +46,10 @@ export default function SignupPage(): React.JSX.Element {
 
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                    <Label htmlFor="username">Username*</Label>
+                    <Label htmlFor="username">Username</Label>
                     <Input
                         type="text"
+                        minLength={3}
                         maxLength={255}
                         required
                         name="username"
@@ -57,7 +58,7 @@ export default function SignupPage(): React.JSX.Element {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <Label htmlFor="email">Email*</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                         type="email"
                         required
@@ -68,13 +69,12 @@ export default function SignupPage(): React.JSX.Element {
 
                 <Button
                     variant="brand"
-                    size="lg"
                     type="submit"
                     disabled={isExecuting}
                     aria-disabled={isExecuting}
-                    className="w-full max-w-64 mt-4 mx-auto"
+                    className="w-full mt-4"
                 >
-                    {isExecuting ? "Creating..." : "Signup"}
+                    {isExecuting ? <Loader /> : "Signup"}
                 </Button>
             </form>
         </main>
