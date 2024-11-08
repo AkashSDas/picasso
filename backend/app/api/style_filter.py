@@ -27,6 +27,7 @@ MAX_REPORT_COUNT = 25
     summary="Upload filters",
     responses=responses.upload_style_filters,
     response_model=responses.upload_style_filters[status.HTTP_201_CREATED]["model"],
+    status_code=status.HTTP_201_CREATED,
 )
 async def upload_filters(
     db: deps.db_dep,

@@ -22,6 +22,7 @@ router = APIRouter()
     ),
     responses=responses.email_signup,
     response_model=responses.email_signup[status.HTTP_201_CREATED]["model"],
+    status_code=status.HTTP_201_CREATED,
 )
 async def email_signup(
     req: Request,
