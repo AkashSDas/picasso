@@ -5,13 +5,13 @@ import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/utils/styles";
 
 const variants = cva(
-    "inline-flex font-head items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+    "inline-flex font-head items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     {
         variants: {
             variant: {
                 default: `border border-neutral-600/70 bg-neutral-700/70 backdrop-blur-sm hover:bg-neutral-700/40 hover:border-neutral-600/40`,
-                brand: "bg-pink-500 text-neutral-50 hover:bg-pink-900/90",
-                ghost: "border bg-transparent border-transparent backdrop-blur-sm hover:bg-neutral-700/70 hover:border-neutral-600/70",
+                brand: "bg-pink-500 text-neutral-50 hover:bg-pink-600/90 active:bg-pink-600/70",
+                ghost: "border bg-transparent border-transparent backdrop-blur-sm hover:bg-neutral-700/70 hover:border-neutral-600/70 active:bg-neutral-700/40 active:border-neutral-600/40",
             },
             size: {
                 default: "h-9 px-6",

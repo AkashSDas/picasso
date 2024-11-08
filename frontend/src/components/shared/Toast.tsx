@@ -134,7 +134,7 @@ const ToastDescription = forwardRef<
     return (
         <ToastPrimitives.Description
             ref={ref}
-            className={cn("text-sm opacity-90 select-all", className)}
+            className={cn("text-sm font-medium opacity-90 select-all", className)}
             {...props}
         />
     );
