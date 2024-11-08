@@ -28,7 +28,7 @@ export function Navbar(): React.JSX.Element {
                 </Link>
 
                 <Link href="/signup">
-                    <Button variant="brand">signup</Button>
+                    <Button variant="brand">Signup</Button>
                 </Link>
             </div>
         </nav>
