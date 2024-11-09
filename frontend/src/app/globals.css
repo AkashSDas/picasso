@@ -8,8 +8,7 @@
     }
 
     body {
-        background-color: #1e1a1c;
-        @apply font-body text-gray-100;
+        @apply bg-neutral-900 font-body text-gray-100;
     }
 
     input {
