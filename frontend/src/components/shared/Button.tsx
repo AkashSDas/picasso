@@ -9,9 +9,8 @@ const variants = cva(
     {
         variants: {
             variant: {
-                default: `border border-neutral-600/70 bg-neutral-700/70 backdrop-blur-sm hover:bg-neutral-700/40 hover:border-neutral-600/40`,
+                default: `border bg-neutral-50/5 border-transparent backdrop-blur-sm hover:opacity-70 active:opacity-40`,
                 brand: "bg-pink-500 text-neutral-50 hover:bg-pink-600/90 active:bg-pink-600/70",
-                ghost: "border bg-transparent border-transparent backdrop-blur-sm hover:bg-neutral-700/70 hover:border-neutral-600/70 active:bg-neutral-700/40 active:border-neutral-600/40",
             },
             size: {
                 default: "h-9 px-6",

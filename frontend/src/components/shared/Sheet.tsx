@@ -78,7 +78,7 @@ const SheetContent = forwardRef<
                         </Link>
                     </SheetClose>
 
-                    <SheetPrimitive.Close className="rounded-full focus:outline-none bg-neutral-700/70 border transition-all border-neutral-600/70 backdrop-blur-sm flex justify-center items-center w-8 h-8 disabled:pointer-events-none data-[state=open]:bg-transparent hover:bg-neutral-700/40 hover:border-neutral-600/40">
+                    <SheetPrimitive.Close className="rounded-full shadow focus:outline-none bg-neutral-50/5 border-transparent backdrop-blur-sm transition-all hover:opacity-70 active:opacity-40 flex justify-center items-center w-8 h-8 disabled:pointer-events-none data-[state=open]:bg-transparent">
                         <X className="w-4 h-4" />
                         <span className="sr-only">Close</span>
                     </SheetPrimitive.Close>

@@ -78,7 +78,10 @@ export default function LoginPage(): React.JSX.Element {
         <main className="mx-auto w-full max-w-md my-10 px-4">
             <h1 className="font-head text-3xl md:text-4xl mb-8">Welcome Back</h1>
 
-            <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <form
+                onSubmit={onSubmit}
+                className="flex flex-col gap-4 animate-in ease-cubic"
+            >
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input

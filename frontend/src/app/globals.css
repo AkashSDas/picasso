@@ -8,7 +8,7 @@
     }
 
     body {
-        @apply bg-neutral-900 font-body text-gray-100;
+        @apply bg-neutral-900 font-body text-gray-100 selection:bg-pink-300 selection:text-neutral-900;
     }
 
     input {
