@@ -18,3 +18,7 @@ export const status = {
 } as const;
 
 export const DEFAULT_ERR_MSG = "Internal Server Error";
+
+export const ACCESS_TOKEN_COOKIE_NAME = "access_token";
+
+export const LOGIN_ERROR_MSG_QUERY_NAME = "error-message";
