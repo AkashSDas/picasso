@@ -8,5 +8,6 @@ import type { User } from "./user";
 
 export interface CompleteEmailLoginOut {
     accessToken: string;
+    refreshToken: string;
     user: User;
 }

@@ -114,6 +114,7 @@ export const completeEmailLoginApiAuthLoginEmailTokenGet200ResponseUserUsernameM
 
 export const completeEmailLoginApiAuthLoginEmailTokenGet200Response = zod.object({
     accessToken: zod.string(),
+    refreshToken: zod.string(),
     user: zod.object({
         userId: zod.string(),
         username: zod
@@ -158,21 +159,8 @@ export const completeEmailLoginApiAuthLoginEmailTokenGet500Response = zod.object
 /**
  * @summary Refresh access token
  */
-export const refreshAccessTokenApiAuthRefreshGet200ResponseUserUsernameMin = 3;
-
-export const refreshAccessTokenApiAuthRefreshGet200ResponseUserUsernameMax = 255;
-
 export const refreshAccessTokenApiAuthRefreshGet200Response = zod.object({
     accessToken: zod.string(),
-    user: zod.object({
-        userId: zod.string(),
-        username: zod
-            .string()
-            .min(refreshAccessTokenApiAuthRefreshGet200ResponseUserUsernameMin)
-            .max(refreshAccessTokenApiAuthRefreshGet200ResponseUserUsernameMax),
-        email: zod.string().email(),
-        profilePicURL: zod.string().url().min(1),
-    }),
 });
 
 export const refreshAccessTokenApiAuthRefreshGet400Response = zod

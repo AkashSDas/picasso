@@ -4,9 +4,7 @@
  * Picasso
  * OpenAPI spec version: 0.1.0
  */
-import type { User } from "./user";
 
 export interface RefreshAccessTokenOut {
     accessToken: string;
-    user: User;
 }

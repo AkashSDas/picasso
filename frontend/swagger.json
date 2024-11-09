@@ -694,13 +694,17 @@
                         "type": "string",
                         "title": "Accesstoken"
                     },
+                    "refreshToken": {
+                        "type": "string",
+                        "title": "Refreshtoken"
+                    },
                     "user": {
                         "$ref": "#/components/schemas/User"
                     }
                 },
                 "additionalProperties": false,
                 "type": "object",
-                "required": ["accessToken", "user"],
+                "required": ["accessToken", "refreshToken", "user"],
                 "title": "CompleteEmailLoginOut"
             },
             "ConflictErrorResponse": {
@@ -874,6 +878,7 @@
                         "$ref": "#/components/schemas/User"
                     }
                 },
+                "additionalProperties": false,
                 "type": "object",
                 "required": ["user"],
                 "title": "LoggedInUserProfile"
@@ -903,14 +908,11 @@
                     "accessToken": {
                         "type": "string",
                         "title": "Accesstoken"
-                    },
-                    "user": {
-                        "$ref": "#/components/schemas/User"
                     }
                 },
                 "additionalProperties": false,
                 "type": "object",
-                "required": ["accessToken", "user"],
+                "required": ["accessToken"],
                 "title": "RefreshAccessTokenOut"
             },
             "ReportStyleFilterOut": {
