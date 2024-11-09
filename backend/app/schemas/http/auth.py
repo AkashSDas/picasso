@@ -46,3 +46,7 @@ class CompleteEmailLoginOut(BaseModel):
 
 class RefreshAccessTokenOut(CompleteEmailLoginOut):
     pass
+
+
+class LoggedInUserProfile(BaseModel):
+    user: User

@@ -115,6 +115,15 @@ logout_user: Responses = {
     **_unauthorized_response,
 }
 
+logged_in_user_profile: Responses = {
+    status.HTTP_200_OK: {
+        "description": "Get current user",
+        "model": schemas.http.LoggedInUserProfile,
+    },
+    **_base_responses,
+    **_unauthorized_response,
+}
+
 
 # =======================
 # Style Filter

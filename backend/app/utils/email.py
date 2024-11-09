@@ -21,7 +21,7 @@ class EmailManager:
         try:
             log.info(f"Sending magic link email to {email}. Token: {token}")
 
-            magic_link = f"{settings.frontend_url}/login?login-token={token}"
+            magic_link = f"{settings.frontend_url}/login/{token}"
 
             html_template = f"""
             <!DOCTYPE html>

@@ -3,7 +3,7 @@ from typing import Annotated, cast
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, Request, Response, status
 from pydantic import EmailStr
 
-from app import crud, schemas, utils
+from app import crud, deps, schemas, utils
 from app.core import log, responses, settings
 from app.core.exceptions import BadRequestError, UnauthorizedError
 from app.db.models.user import User
@@ -26,7 +26,7 @@ router = APIRouter()
 )
 async def email_signup(
     req: Request,
-    db: db_dep,
+    db: deps.db_dep,
     body: Annotated[schemas.http.EmailSignupIn, Body()],
     background_tasks: BackgroundTasks,
 ) -> schemas.http.EmailSignupOut:
@@ -61,7 +61,7 @@ async def email_signup(
     response_model=responses.email_login[status.HTTP_200_OK]["model"],
 )
 async def email_login(
-    db: db_dep,
+    db: deps.db_dep,
     body: Annotated[schemas.http.EmailLoginIn, Body()],
     background_tasks: BackgroundTasks,
 ) -> schemas.http.EmailLoginOut:
@@ -96,7 +96,7 @@ async def email_login(
 )
 async def complete_email_login(
     token: str,
-    db: db_dep,
+    db: deps.db_dep,
     res: Response,
     background_tasks: BackgroundTasks,
 ) -> schemas.http.CompleteEmailLoginOut:
@@ -170,3 +170,15 @@ async def refresh_access_token(
 )
 async def logout_user(res: Response) -> None:
     res.delete_cookie(key=Cookie.REFRESH_TOKEN.value)
+
+
+@router.get(
+    "/me",
+    summary="Get current user",
+    responses=responses.logged_in_user_profile,
+    response_model=responses.logged_in_user_profile[status.HTTP_200_OK]["model"],
+)
+async def get_logged_in_user_profile(
+    user: deps.current_user_dep,
+) -> schemas.http.LoggedInUserProfile:
+    return schemas.http.LoggedInUserProfile(user=user.to_schema())

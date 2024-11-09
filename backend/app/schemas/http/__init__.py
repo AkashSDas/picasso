@@ -14,6 +14,7 @@ from .auth import (
     EmailLoginOut,
     EmailSignupIn,
     EmailSignupOut,
+    LoggedInUserProfile,
     RefreshAccessTokenOut,
 )
 from .style_filter import (
