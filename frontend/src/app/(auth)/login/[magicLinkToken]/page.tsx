@@ -3,5 +3,5 @@ export default async function CompleteMagicLinkLoginPage(props: {
 }): Promise<void> {
     const token = (await props.params).magicLinkToken;
 
-    await fetch(`/login/${token}`);
+    await fetch(`/api/login/${token}`);
 }
