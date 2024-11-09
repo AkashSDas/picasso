@@ -8,6 +8,7 @@ import {
 import {
     ACCESS_TOKEN_COOKIE_NAME,
     LOGIN_ERROR_MSG_QUERY_NAME,
+    REFRESH_TOKEN_COOKIE_NAME,
     status,
 } from "@/utils/http";
 
@@ -23,7 +24,13 @@ export async function GET(
     const [cookieStore, params] = await Promise.all([cookies(), opts.params]);
     const token = params.magicLinkToken;
 
-    const res = await fetch(`${process.env.BACKEND_URL}/api/auth/login/email/${token}`);
+    const res = await fetch(
+        `${process.env.BACKEND_URL}/api/auth/login/email/${token}`,
+
+        // Since NextJS BE calls Python BE and it doesn't save cookie
+        // that's why sending refreshToken to NextJS BE and saving it in it's cookie
+        // { credentials: "include" },
+    );
     const payload = await res.json();
 
     let redirectPath: "/" | `/login?${typeof LOGIN_ERROR_MSG_QUERY_NAME}=${string}` =
@@ -39,6 +46,14 @@ export async function GET(
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "lax",
                     maxAge: 6 * 60, // 6 minutes
+                    path: "/",
+                });
+
+                cookieStore.set(REFRESH_TOKEN_COOKIE_NAME, data.refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    maxAge: 24 * 60 * 60, // 1 day
                     path: "/",
                 });
 

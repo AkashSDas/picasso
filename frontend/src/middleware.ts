@@ -30,12 +30,8 @@ export default async function middleware(req: NextRequest): Promise<Response> {
         const refreshResponse = await fetch(
             `${process.env.BACKEND_URL}/api/auth/refresh`,
             {
-                method: "get",
                 credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    Cookie: req.cookies.toString(),
-                },
+                headers: { Cookie: req.cookies.toString() },
             },
         );
 
