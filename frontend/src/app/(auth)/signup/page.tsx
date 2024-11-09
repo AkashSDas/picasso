@@ -1,6 +1,7 @@
 "use client";
 
 import { useAction } from "next-safe-action/hooks";
+import Link from "next/link";
 
 import { signup } from "@/actions/auth";
 import { Button } from "@/components/shared/Button";
@@ -77,6 +78,15 @@ export default function SignupPage(): React.JSX.Element {
                     {isExecuting ? <Loader /> : "Signup"}
                 </Button>
             </form>
+
+            <hr className="my-8 border-neutral-800" />
+
+            <p className="text-center text-neutral-400 text-sm font-medium">
+                Already have an account?{" "}
+                <Link href="/login" className="text-blue-500 underline">
+                    Login
+                </Link>
+            </p>
         </main>
     );
 }
