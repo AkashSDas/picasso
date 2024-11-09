@@ -127,6 +127,7 @@ async def complete_email_login(
 
     return schemas.http.CompleteEmailLoginOut(
         accessToken=access_token,
+        refreshToken=refresh_token,
         user=user.to_schema(),
     )
 
@@ -155,10 +156,7 @@ async def refresh_access_token(
 
     access_token = utils.auth.create_access_token({"sub": str(user.public_user_id)})
 
-    return schemas.http.RefreshAccessTokenOut(
-        accessToken=access_token,
-        user=user.to_schema(),
-    )
+    return schemas.http.RefreshAccessTokenOut(accessToken=access_token)
 
 
 @router.get(
