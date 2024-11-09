@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -11,7 +12,7 @@ import {
     emailSignupApiAuthSignupEmailPost409Response as signup409Response,
 } from "@/gen/endpoints/authentication/authentication";
 import { actionClient } from "@/lib/safe-action";
-import { DEFAULT_ERR_MSG, status } from "@/utils/http";
+import { ACCESS_TOKEN_COOKIE_NAME, DEFAULT_ERR_MSG, status } from "@/utils/http";
 
 // ======================================
 // Form Data Schemas
@@ -121,3 +122,10 @@ export const login = actionClient
             };
         }
     });
+
+export const logout = actionClient.action(async function logoutAction(): Promise<void> {
+    await fetch(`${process.env.BACKEND_URL}/api/auth/logout`);
+
+    const cookieStore = await cookies();
+    cookieStore.delete(ACCESS_TOKEN_COOKIE_NAME);
+});

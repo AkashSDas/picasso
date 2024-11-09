@@ -1,5 +1,3 @@
-"use server";
-
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +6,7 @@ import { getLoggedInUser } from "@/utils/auth";
 import { cn } from "@/utils/styles";
 
 import { Button } from "./Button";
+import { LogoutButton } from "./LogoutButton";
 import {
     Sheet,
     SheetClose,
@@ -38,13 +37,8 @@ export async function Navbar(): Promise<React.JSX.Element> {
                         <SheetTitle>Menu</SheetTitle>
                     </VisuallyHidden.Root>
 
-                    <SheetFooter
-                        className={cn(
-                            "flex w-full flex-row gap-2",
-                            isLoggedIn ? "hidden" : "",
-                        )}
-                    >
-                        <SheetClose asChild>
+                    <SheetFooter className="flex w-full flex-row gap-2">
+                        <SheetClose asChild className={cn(isLoggedIn ? "hidden" : "")}>
                             <Link href="/login" className="w-full">
                                 <Button variant="default" className="w-full">
                                     Login
@@ -52,30 +46,33 @@ export async function Navbar(): Promise<React.JSX.Element> {
                             </Link>
                         </SheetClose>
 
-                        <SheetClose asChild>
+                        <SheetClose asChild className={cn(isLoggedIn ? "hidden" : "")}>
                             <Link href="/signup" className="w-full">
                                 <Button variant="brand" className="w-full">
                                     Signup
                                 </Button>
                             </Link>
                         </SheetClose>
+
+                        <SheetClose asChild className={cn(!isLoggedIn ? "hidden" : "")}>
+                            <LogoutButton />
+                        </SheetClose>
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
 
-            <div
-                className={cn(
-                    "hidden md:flex items-center gap-2",
-                    isLoggedIn ? "md:hidden" : "",
-                )}
-            >
-                <Link href="/login">
+            <div className={cn("hidden md:flex items-center gap-2")}>
+                <Link href="/login" className={cn(isLoggedIn ? "md:hidden" : "")}>
                     <Button variant="ghost">Login</Button>
                 </Link>
 
-                <Link href="/signup">
+                <Link href="/signup" className={cn(isLoggedIn ? "md:hidden" : "")}>
                     <Button variant="brand">Signup</Button>
                 </Link>
+
+                <span className={cn(!isLoggedIn ? "md:hidden" : "")}>
+                    <LogoutButton />
+                </span>
             </div>
         </nav>
     );
