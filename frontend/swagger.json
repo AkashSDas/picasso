@@ -21,16 +21,6 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/EmailSignupOut"
-                                }
-                            }
-                        }
-                    },
                     "201": {
                         "description": "User account created and magic link login sent to email",
                         "content": {
@@ -284,6 +274,45 @@
                 }
             }
         },
+        "/api/auth/me": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "Get current user",
+                "operationId": "get_logged_in_user_profile_api_auth_me_get",
+                "responses": {
+                    "200": {
+                        "description": "Get current user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoggedInUserProfile"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/filter": {
             "post": {
                 "tags": ["Style Filter"],
@@ -300,16 +329,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UploadStyleFiltersOut"
-                                }
-                            }
-                        }
-                    },
                     "201": {
                         "description": "Style filters uploaded",
                         "content": {
@@ -848,6 +867,16 @@
                 "type": "object",
                 "required": ["reason", "message"],
                 "title": "InternalServerErrorResponse"
+            },
+            "LoggedInUserProfile": {
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object",
+                "required": ["user"],
+                "title": "LoggedInUserProfile"
             },
             "PydanticErrorResponse": {
                 "properties": {

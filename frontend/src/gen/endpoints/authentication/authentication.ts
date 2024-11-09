@@ -21,10 +21,6 @@ export const emailSignupApiAuthSignupEmailPostBody = zod.object({
         .max(emailSignupApiAuthSignupEmailPostBodyUsernameMax),
 });
 
-export const emailSignupApiAuthSignupEmailPost200Response = zod.object({
-    message: zod.string(),
-});
-
 export const emailSignupApiAuthSignupEmailPost201Response = zod.object({
     message: zod.string(),
 });
@@ -211,6 +207,35 @@ export const logoutUserApiAuthLogoutGet401Response = zod.object({
 });
 
 export const logoutUserApiAuthLogoutGet500Response = zod.object({
+    reason: zod.string(),
+    message: zod.string(),
+});
+
+/**
+ * @summary Get current user
+ */
+export const getLoggedInUserProfileApiAuthMeGet200ResponseUserUsernameMin = 3;
+
+export const getLoggedInUserProfileApiAuthMeGet200ResponseUserUsernameMax = 255;
+
+export const getLoggedInUserProfileApiAuthMeGet200Response = zod.object({
+    user: zod.object({
+        userId: zod.string(),
+        username: zod
+            .string()
+            .min(getLoggedInUserProfileApiAuthMeGet200ResponseUserUsernameMin)
+            .max(getLoggedInUserProfileApiAuthMeGet200ResponseUserUsernameMax),
+        email: zod.string().email(),
+        profilePicURL: zod.string().url().min(1),
+    }),
+});
+
+export const getLoggedInUserProfileApiAuthMeGet401Response = zod.object({
+    reason: zod.string(),
+    message: zod.string(),
+});
+
+export const getLoggedInUserProfileApiAuthMeGet500Response = zod.object({
     reason: zod.string(),
     message: zod.string(),
 });

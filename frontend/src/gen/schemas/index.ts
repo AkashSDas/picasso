@@ -21,6 +21,7 @@ export * from "./getStyleFiltersApiFilterGetParams";
 export * from "./getStyleFiltersOut";
 export * from "./hTTPValidationError";
 export * from "./internalServerErrorResponse";
+export * from "./loggedInUserProfile";
 export * from "./pydanticErrorResponse";
 export * from "./refreshAccessTokenOut";
 export * from "./reportStyleFilterApiFilterFilterIdReportPatchParams";

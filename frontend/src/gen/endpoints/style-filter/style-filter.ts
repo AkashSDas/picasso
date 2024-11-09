@@ -9,30 +9,6 @@ import { z as zod } from "zod";
 /**
  * @summary Upload filters
  */
-export const uploadFiltersApiFilterPost200ResponseFiltersItemReportCountMin = 0;
-
-export const uploadFiltersApiFilterPost200Response = zod.object({
-    filters: zod
-        .array(
-            zod.object({
-                filterId: zod.string(),
-                authorId: zod.string(),
-                imgId: zod.string(),
-                imgURL: zod.string().url().min(1),
-                blurImgURL: zod.string().url().min(1),
-                smallImgURL: zod.string().url().min(1),
-                isOfficial: zod.boolean(),
-                isBanned: zod.boolean(),
-                reportCount: zod
-                    .number()
-                    .min(
-                        uploadFiltersApiFilterPost200ResponseFiltersItemReportCountMin,
-                    ),
-            }),
-        )
-        .min(1),
-});
-
 export const uploadFiltersApiFilterPost201ResponseFiltersItemReportCountMin = 0;
 
 export const uploadFiltersApiFilterPost201Response = zod.object({
