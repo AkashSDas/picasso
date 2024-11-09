@@ -41,8 +41,15 @@ class EmailLoginOut(BaseModel):
 class CompleteEmailLoginOut(BaseModel):
     model_config = ConfigDict(extra="forbid")
     access_token: str = Field(..., alias="accessToken")
+    refresh_token: str = Field(..., alias="refreshToken")
     user: User
 
 
-class RefreshAccessTokenOut(CompleteEmailLoginOut):
-    pass
+class RefreshAccessTokenOut(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    access_token: str = Field(..., alias="accessToken")
+
+
+class LoggedInUserProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    user: User

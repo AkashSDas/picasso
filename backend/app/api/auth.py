@@ -3,7 +3,7 @@ from typing import Annotated, cast
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, Request, Response, status
 from pydantic import EmailStr
 
-from app import crud, schemas, utils
+from app import crud, deps, schemas, utils
 from app.core import log, responses, settings
 from app.core.exceptions import BadRequestError, UnauthorizedError
 from app.db.models.user import User
@@ -22,10 +22,11 @@ router = APIRouter()
     ),
     responses=responses.email_signup,
     response_model=responses.email_signup[status.HTTP_201_CREATED]["model"],
+    status_code=status.HTTP_201_CREATED,
 )
 async def email_signup(
     req: Request,
-    db: db_dep,
+    db: deps.db_dep,
     body: Annotated[schemas.http.EmailSignupIn, Body()],
     background_tasks: BackgroundTasks,
 ) -> schemas.http.EmailSignupOut:
@@ -45,7 +46,6 @@ async def email_signup(
         utils.email.send_magic_link,
         cast(EmailStr, user.email),
         token,
-        str(req.base_url),
     )
 
     return schemas.http.EmailSignupOut(message="Magic link login sent to your email")
@@ -61,8 +61,7 @@ async def email_signup(
     response_model=responses.email_login[status.HTTP_200_OK]["model"],
 )
 async def email_login(
-    req: Request,
-    db: db_dep,
+    db: deps.db_dep,
     body: Annotated[schemas.http.EmailLoginIn, Body()],
     background_tasks: BackgroundTasks,
 ) -> schemas.http.EmailLoginOut:
@@ -82,7 +81,6 @@ async def email_login(
         utils.email.send_magic_link,
         cast(EmailStr, user.email),
         token,
-        str(req.base_url),
     )
 
     return schemas.http.EmailLoginOut(message="Magic link login sent to your email")
@@ -98,7 +96,7 @@ async def email_login(
 )
 async def complete_email_login(
     token: str,
-    db: db_dep,
+    db: deps.db_dep,
     res: Response,
     background_tasks: BackgroundTasks,
 ) -> schemas.http.CompleteEmailLoginOut:
@@ -129,6 +127,7 @@ async def complete_email_login(
 
     return schemas.http.CompleteEmailLoginOut(
         accessToken=access_token,
+        refreshToken=refresh_token,
         user=user.to_schema(),
     )
 
@@ -157,10 +156,7 @@ async def refresh_access_token(
 
     access_token = utils.auth.create_access_token({"sub": str(user.public_user_id)})
 
-    return schemas.http.RefreshAccessTokenOut(
-        accessToken=access_token,
-        user=user.to_schema(),
-    )
+    return schemas.http.RefreshAccessTokenOut(accessToken=access_token)
 
 
 @router.get(
@@ -172,3 +168,15 @@ async def refresh_access_token(
 )
 async def logout_user(res: Response) -> None:
     res.delete_cookie(key=Cookie.REFRESH_TOKEN.value)
+
+
+@router.get(
+    "/me",
+    summary="Get current user",
+    responses=responses.logged_in_user_profile,
+    response_model=responses.logged_in_user_profile[status.HTTP_200_OK]["model"],
+)
+async def get_logged_in_user_profile(
+    user: deps.current_user_dep,
+) -> schemas.http.LoggedInUserProfile:
+    return schemas.http.LoggedInUserProfile(user=user.to_schema())

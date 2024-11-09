@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.5rem;
+    }
+
+    body {
+        @apply bg-neutral-900 font-body text-gray-100 selection:bg-pink-300 selection:text-neutral-900;
+    }
+
+    input {
+        @apply font-body;
+    }
+}

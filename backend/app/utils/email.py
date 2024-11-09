@@ -17,11 +17,11 @@ conf = ConnectionConfig(
 
 class EmailManager:
     @classmethod
-    async def send_magic_link(cls, email: EmailStr, token: str, base_url: str) -> None:
+    async def send_magic_link(cls, email: EmailStr, token: str) -> None:
         try:
             log.info(f"Sending magic link email to {email}. Token: {token}")
 
-            magic_link = f"{base_url}api/auth/login/email/{token}"
+            magic_link = f"{settings.frontend_url}/login/{token}"
 
             html_template = f"""
             <!DOCTYPE html>
