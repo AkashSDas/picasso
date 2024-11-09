@@ -9,16 +9,18 @@ import { Button } from "./Button";
 import { Loader } from "./Loader";
 
 export function LogoutButton() {
-    const { executeAsync, isExecuting } = useAction(logout, {
-        onSettled() {
-            redirect("/");
-        },
-    });
+    const { executeAsync, isExecuting } = useAction(logout);
 
     return (
         <Button
             className="w-full"
-            onClick={async () => await executeAsync()}
+            onClick={async () => {
+                await executeAsync();
+
+                // Keeping it here instead of onSettled because redirect should be
+                // called outside try/catch
+                redirect("/");
+            }}
             disabled={isExecuting}
         >
             {isExecuting ? <Loader sizeInPx={18} /> : "Logout"}
