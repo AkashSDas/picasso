@@ -10,7 +10,7 @@ const variants = cva(
         variants: {
             variant: {
                 default: `border bg-neutral-50/5 border-transparent backdrop-blur-sm hover:opacity-70 active:opacity-40`,
-                brand: "bg-pink-500 text-neutral-50 hover:bg-pink-600/90 active:bg-pink-600/70",
+                brand: "bg-pink-500 text-neutral-50 hover:bg-pink-600 active:bg-pink-700",
             },
             size: {
                 default: "h-9 px-6",

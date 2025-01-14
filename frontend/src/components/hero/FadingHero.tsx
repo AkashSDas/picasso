@@ -33,7 +33,7 @@ export function FadingHero() {
                     <Button
                         size="lg"
                         variant="brand"
-                        className="h-14 rounded-md w-fit px-28 hover:opacity-100 active:opacity-100 hover:brightness-95 active:brightness-90"
+                        className="h-14 rounded-md w-fit px-28"
                     >
                         <Wand2 />
                         Try Now
