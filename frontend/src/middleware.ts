@@ -62,7 +62,7 @@ export default async function middleware(req: NextRequest): Promise<Response> {
                 path: "/",
             });
 
-            return cookieResponse;
+            return response;
         }
     }
 }
