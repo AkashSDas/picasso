@@ -1,11 +1,19 @@
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { MenuIcon } from "lucide-react";
+import { BlendIcon, HeartIcon, MenuIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { getLoggedInUser } from "@/utils/auth";
 import { cn } from "@/utils/styles";
 
 import { Button } from "./Button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "./DropdownMenu";
 import { LogoutButton } from "./LogoutButton";
 import {
     Sheet,
@@ -25,6 +33,7 @@ export async function Navbar(): Promise<React.JSX.Element> {
                 <span className="font-head text-xl">Picasso</span>{" "}
             </Link>
 
+            {/* Mobile nav */}
             <Sheet>
                 <SheetTrigger asChild>
                     <Button size="icon" className="flex md:hidden">
@@ -67,6 +76,7 @@ export async function Navbar(): Promise<React.JSX.Element> {
                 </SheetContent>
             </Sheet>
 
+            {/* Desktop navbar */}
             <div className={cn("hidden md:flex items-center gap-2")}>
                 <Link href="/login" className={cn(isLoggedIn ? "md:hidden" : "")}>
                     <Button>Login</Button>
@@ -77,9 +87,39 @@ export async function Navbar(): Promise<React.JSX.Element> {
                 </Link>
 
                 <span className={cn(!isLoggedIn ? "md:hidden" : "")}>
+                    <UserDropdownMenu />
+                </span>
+
+                <span className={cn(!isLoggedIn ? "md:hidden" : "")}>
                     <LogoutButton />
                 </span>
             </div>
         </nav>
+    );
+}
+
+function UserDropdownMenu() {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button size="icon">
+                    <UserIcon />
+                </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                    <Link href="/me/filters" className="cursor-pointer">
+                        <BlendIcon /> My filters
+                    </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                    <Link href="/me/liked-filters" className="cursor-pointer">
+                        <HeartIcon /> Liked filters
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
