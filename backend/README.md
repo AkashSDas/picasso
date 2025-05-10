@@ -2,6 +2,13 @@
 
 ## Getting Started
 
+Setup poetry environment:
+
+```bash
+poetry shell
+poetry install
+```
+
 Run server:
 
 ```bash
